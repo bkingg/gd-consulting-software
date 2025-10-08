@@ -7,7 +7,79 @@ import {
   CloudIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Contact from "@/components/Contact";
+
+const ElegantBlobs = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const blobs = [
+      { x: 0.3, y: 0.4, r: 0.25, dx: 0.000002, dy: 0.0000015 },
+      { x: 0.7, y: 0.5, r: 0.3, dx: -0.0000018, dy: 0.000002 },
+      { x: 0.5, y: 0.7, r: 0.2, dx: 0.0000015, dy: -0.000002 },
+    ];
+
+    let animationId: number;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      blobs.forEach((b) => {
+        // Move blob very slowly
+        b.x += b.dx * width;
+        b.y += b.dy * height;
+
+        if (b.x < 0 || b.x > 1) b.dx *= -1;
+        if (b.y < 0 || b.y > 1) b.dy *= -1;
+
+        const gradient = ctx.createRadialGradient(
+          b.x * width,
+          b.y * height,
+          0,
+          b.x * width,
+          b.y * height,
+          b.r * width
+        );
+        gradient.addColorStop(0, `rgba(0, 200, 150, 0.15)`);
+        gradient.addColorStop(1, `rgba(0, 200, 150, 0)`);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+      });
+
+      animationId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute top-0 left-0 w-full h-full pointer-events-none"
+    />
+  );
+};
 
 const NeuralNetworkEffect = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -16,24 +88,24 @@ const NeuralNetworkEffect = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
-    let particles: { x: number; y: number; vx: number; vy: number }[] = [];
 
-    for (let i = 0; i < 90; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-      });
-    }
+    const particles = Array.from({ length: 90 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+    }));
+
+    let animationId: number;
 
     const draw = () => {
-      if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = "rgba(0,255,128,0.25)";
-      for (let p of particles) {
+      for (const p of particles) {
         p.x += p.vx;
         p.y += p.vy;
         if (p.x < 0 || p.x > width) p.vx *= -1;
@@ -43,7 +115,7 @@ const NeuralNetworkEffect = () => {
         ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
         ctx.fill();
 
-        for (let q of particles) {
+        for (const q of particles) {
           const dx = p.x - q.x;
           const dy = p.y - q.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -56,7 +128,7 @@ const NeuralNetworkEffect = () => {
           }
         }
       }
-      requestAnimationFrame(draw);
+      animationId = requestAnimationFrame(draw);
     };
 
     draw();
@@ -65,8 +137,12 @@ const NeuralNetworkEffect = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationId);
+    };
   }, []);
 
   return (
@@ -79,13 +155,52 @@ const NeuralNetworkEffect = () => {
 };
 
 const Homepage = () => {
+  const [activeSection, setActiveSection] = useState<string>("hero");
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  // Track scroll for parallax effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!headerRef.current) return;
+      const scrollY = window.scrollY;
+      // Parallax: logo and menu move at slightly different speeds
+      headerRef.current.style.transform = `translateY(${scrollY * 0.2}px)`;
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Track active section
+  useEffect(() => {
+    const sections = ["accueil", "expertise", "ai", "engineering", "contact"];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
+      },
+      { root: null, threshold: 0.5 }
+    );
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="w-full overflow-x-hidden relative font-sans">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 z-50 bg-black/30 backdrop-blur-md">
-        <div className="flex items-center space-x-4">
+      {/* Top Gradient Line */}
+      <div className="fixed top-0 left-0 w-full h-[3px] z-[60] overflow-hidden">
+        <div className="animate-gradient-smooth h-full w-[200%] bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-500 opacity-40 blur-[1px]" />
+      </div>
+
+      <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/30 px-8 py-4 flex items-center justify-center">
+        <div className="absolute left-8 flex items-center space-x-4">
           <Image
-            src={"/gd-consulting-logo.png"}
+            src="/gd-consulting-logo.png"
             alt="GD Consulting Logo"
             width={60}
             height={60}
@@ -93,26 +208,39 @@ const Homepage = () => {
           />
           <span className="text-white font-bold text-xl">GD Consulting</span>
         </div>
-        <a
-          href="mailto:gdconsultingsn@gmail.com"
-          className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2 rounded-xl font-semibold hover:opacity-90 transition-opacity duration-300 shadow-lg"
-        >
-          Contact
-        </a>
-      </nav>
+
+        <nav className="flex space-x-6">
+          {["accueil", "expertise", "ai", "engineering", "contact"].map(
+            (id) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 hover:text-white hover:bg-green-500/30 ${
+                  activeSection === id
+                    ? "bg-green-500/50 text-white"
+                    : "text-white/70"
+                }`}
+              >
+                {id.charAt(0).toUpperCase() + id.slice(1)}
+              </a>
+            )
+          )}
+        </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center text-center text-white bg-black">
+      <section
+        id="accueil"
+        className="relative h-screen flex items-center justify-center text-center text-white bg-black"
+      >
         <NeuralNetworkEffect />
         <div className="relative z-10 px-6 max-w-4xl">
-          <h1 className="text-5xl md:text-7xl font-extrabold glass-effect mb-6 neon-text-green">
+          <h1 className="text-5xl md:text-7xl font-extrabold glass-gradient mb-6 neon-text-green">
             Logiciels d’entreprise fiables et évolutifs
           </h1>
-          <p className="text-xl md:text-2xl mb-8 glass-effect">
+          <p className="text-xl md:text-2xl mb-8 glass-gradient">
             <strong>GD Consulting</strong> conçoit et déploie des solutions
-            logicielles complexes, sécurisées et scalables sur le cloud. Nous
-            combinons expertise locale et innovation pour transformer vos idées
-            en logiciels robustes et performants.
+            logicielles complexes, sécurisées et scalables sur le cloud.
           </p>
           <a
             href="mailto:gdconsultingsn@gmail.com"
@@ -123,13 +251,13 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="bg-white text-black py-32 px-8">
+      {/* Expertise Section */}
+      <section id="expertise" className="bg-white text-black py-32 px-8">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
           Notre expertise
         </h2>
         <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto text-center place-items-center">
-          <div className="glass-card p-8 rounded-2xl shadow-xl text-center flex flex-col items-center">
+          <div className="glass-card p-8 rounded-2xl shadow-xl flex flex-col items-center">
             <CpuChipIcon className="w-12 h-12 mb-4 text-green-600" />
             <h3 className="text-2xl font-bold mb-4">Solutions sur-mesure</h3>
             <p>
@@ -137,7 +265,7 @@ const Homepage = () => {
               et optimisés pour vos besoins spécifiques.
             </p>
           </div>
-          <div className="glass-card p-8 rounded-2xl shadow-xl text-center flex flex-col items-center">
+          <div className="glass-card p-8 rounded-2xl shadow-xl flex flex-col items-center">
             <CloudIcon className="w-12 h-12 mb-4 text-green-600" />
             <h3 className="text-2xl font-bold mb-4">Cloud & Scalabilité</h3>
             <p>
@@ -145,7 +273,7 @@ const Homepage = () => {
               et fiabilité à grande échelle.
             </p>
           </div>
-          <div className="glass-card p-8 rounded-2xl shadow-xl text-center flex flex-col items-center">
+          <div className="glass-card p-8 rounded-2xl shadow-xl flex flex-col items-center">
             <SparklesIcon className="w-12 h-12 mb-4 text-green-600" />
             <h3 className="text-2xl font-bold mb-4">
               Intelligence Artificielle
@@ -158,13 +286,17 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* AI & Infrastructure Section */}
-      <section className="relative h-screen flex items-center justify-center text-center text-white px-6 bg-gray-900">
-        <div className="max-w-3xl">
-          <h2 className="text-5xl md:text-6xl font-extrabold glass-effect neon-text-green mb-6">
+      {/* AI Section */}
+      <section
+        id="ai"
+        className="relative h-screen flex items-center justify-center text-center text-white px-6 bg-black overflow-hidden"
+      >
+        <NeuralNetworkEffect />
+        <div className="relative z-10 max-w-3xl glass-gradient p-8 rounded-3xl">
+          <h2 className="text-5xl md:text-6xl font-extrabold neon-text-green mb-6">
             Technologie, sécurité et innovation
           </h2>
-          <p className="text-xl md:text-2xl mb-8 glass-effect">
+          <p className="text-xl md:text-2xl mb-8">
             Nos solutions sont conçues pour les entreprises qui exigent
             fiabilité, haute performance et sécurité. Nous maîtrisons le cloud,
             les architectures scalables et l’IA pour fournir des logiciels à la
@@ -179,43 +311,93 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* Engineering Section */}
       <section
-        id="contact"
-        className="bg-gray-50 text-gray-900 py-32 px-8 text-center"
+        id="engineering"
+        className="bg-black text-white py-32 px-8 relative overflow-hidden"
       >
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">
-          Votre vision, notre expertise
-        </h2>
-        <p className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto">
-          Confiez votre projet à des professionnels de confiance. Nous concevons
-          des solutions logicielles robustes, sécurisées et évolutives, adaptées
-          aux besoins de votre entreprise.
-        </p>
-        <a
-          href="mailto:gdconsultingsn@gmail.com"
-          className="bg-green-600 text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform duration-300"
-        >
-          Contactez-nous maintenant
-        </a>
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-12 text-center neon-text-green">
+            L’excellence en ingénierie logicielle
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="glass-gradient p-8 rounded-3xl border border-emerald-500/20 shadow-xl">
+              <h3 className="text-2xl font-bold mb-4">
+                Architecture pensée pour durer
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                Chez <strong>GD Consulting</strong>, chaque ligne de code est
+                écrite avec rigueur et intention.
+              </p>
+            </div>
+            <div className="glass-gradient p-8 rounded-3xl border border-green-400/20 shadow-xl">
+              <h3 className="text-2xl font-bold mb-4">
+                Une ingénierie, pas du bricolage
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                Contrairement aux approches improvisées, nous appliquons une
+                méthodologie d’ingénierie logicielle à chaque étape.
+              </p>
+            </div>
+            <div className="glass-gradient p-8 rounded-3xl border border-green-500/20 shadow-xl">
+              <h3 className="text-2xl font-bold mb-4">
+                La force du savoir-faire local
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                Nos ingénieurs conçoivent des solutions au niveau mondial, avec
+                une compréhension locale des besoins.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Styling */}
+      {/* Contact Section */}
+      <section id="contact" className="relative">
+        <ElegantBlobs />
+        <Contact />
+      </section>
+
+      {/* Styles */}
       <style jsx>{`
-        .glass-effect {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(15px);
-          padding: 0.5rem 1rem;
+        .glass-gradient {
+          background: linear-gradient(
+            135deg,
+            rgba(0, 255, 128, 0.1),
+            rgba(0, 255, 128, 0.03)
+          );
+          backdrop-filter: blur(25px);
           border-radius: 1rem;
-          display: inline-block;
+          padding: 1.5rem;
+          border: 1px solid rgba(0, 255, 128, 0.2);
         }
+
         .glass-card {
           background: rgba(255, 255, 255, 0.05);
           backdrop-filter: blur(20px);
         }
+
         .neon-text-green {
-          text-shadow: 0 0 10px rgba(0, 255, 128, 0.7),
-            0 0 20px rgba(0, 255, 128, 0.5), 0 0 30px rgba(0, 255, 128, 0.3);
+          text-shadow: 0 0 6px rgba(0, 255, 128, 0.5),
+            0 0 12px rgba(0, 255, 128, 0.3), 0 0 18px rgba(0, 255, 128, 0.2);
+        }
+
+        .animate-gradient-smooth {
+          background-size: 200% 100%;
+          animation: gradientSmooth 12s linear infinite;
+        }
+
+        @keyframes gradientSmooth {
+          0% {
+            transform: translateX(-25%);
+          }
+          100% {
+            transform: translateX(0%);
+          }
+        }
+
+        html {
+          scroll-behavior: smooth;
         }
       `}</style>
     </div>
