@@ -238,7 +238,7 @@ const Homepage = () => {
         <div className="md:hidden absolute right-4 flex items-center">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-white focus:outline-none"
+            className="text-white focus:outline-none cursor-pointer"
           >
             {isOpen ? (
               <XMarkIcon className="w-6 h-6" />
