@@ -6,6 +6,8 @@ import {
   CpuChipIcon,
   CloudIcon,
   SparklesIcon,
+  Bars3Icon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 import Contact from "@/components/Contact";
@@ -157,6 +159,7 @@ const NeuralNetworkEffect = () => {
 const Homepage = () => {
   const [activeSection, setActiveSection] = useState<string>("hero");
   const headerRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Track scroll for parallax effect
   useEffect(() => {
@@ -197,19 +200,23 @@ const Homepage = () => {
         <div className="animate-gradient-smooth h-full w-[200%] bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-500 opacity-40 blur-[1px]" />
       </div>
 
-      <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/30 px-8 py-4 flex items-center justify-center">
-        <div className="absolute left-8 flex items-center space-x-4">
+      <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-black/40 px-4 md:px-8 py-8 md:py-3 flex items-center justify-center">
+        {/* Logo */}
+        <div className="absolute left-4 md:left-8 flex items-center space-x-3 md:space-x-4">
           <Image
             src="/gd-consulting-logo.png"
             alt="GD Consulting Logo"
-            width={60}
-            height={60}
+            width={50}
+            height={50}
             className="rounded-full"
           />
-          <span className="text-white font-bold text-xl">GD Consulting</span>
+          <span className="text-white font-bold text-lg md:text-xl tracking-wide">
+            GD Consulting
+          </span>
         </div>
 
-        <nav className="flex space-x-6">
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex space-x-6">
           {["accueil", "expertise", "ai", "engineering", "contact"].map(
             (id) => (
               <a
@@ -226,6 +233,42 @@ const Homepage = () => {
             )
           )}
         </nav>
+
+        {/* Mobile Hamburger */}
+        <div className="md:hidden absolute right-4 flex items-center">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-white focus:outline-none"
+          >
+            {isOpen ? (
+              <XMarkIcon className="w-6 h-6" />
+            ) : (
+              <Bars3Icon className="w-6 h-6" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md flex flex-col items-center py-4 space-y-3 md:hidden">
+            {["accueil", "expertise", "ai", "engineering", "contact"].map(
+              (id) => (
+                <a
+                  key={id}
+                  href={`#${id}`}
+                  onClick={() => setIsOpen(false)}
+                  className={`cursor-pointer px-6 py-2 rounded-full transition-all duration-300 hover:text-white hover:bg-green-500/30 ${
+                    activeSection === id
+                      ? "bg-green-500/50 text-white"
+                      : "text-white/70"
+                  }`}
+                >
+                  {id.charAt(0).toUpperCase() + id.slice(1)}
+                </a>
+              )
+            )}
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -249,6 +292,32 @@ const Homepage = () => {
             Parlez à nos experts
           </a>
         </div>
+        {/* Modern Scroll Indicator */}
+        <a
+          href="#expertise"
+          className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20 flex flex-col items-center space-y-2 cursor-pointer"
+        >
+          {/* Vertical neon line with moving dot */}
+          <div className="w-[2px] h-16 bg-green-500/20 rounded-full relative overflow-hidden">
+            <div className="w-full h-2 bg-green-500 rounded-full absolute top-0 animate-scrollDot"></div>
+          </div>
+
+          {/* Arrow */}
+          <svg
+            className="w-6 h-6 text-green-500 animate-bounce"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+        </a>
       </section>
 
       {/* Expertise Section */}
@@ -394,6 +463,34 @@ const Homepage = () => {
           100% {
             transform: translateX(0%);
           }
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+        @keyframes scrollDot {
+          0% {
+            top: 0%;
+            opacity: 0;
+          }
+          25% {
+            opacity: 1;
+          }
+          50% {
+            top: 50%;
+            opacity: 1;
+          }
+          75% {
+            opacity: 1;
+          }
+          100% {
+            top: 100%;
+            opacity: 0;
+          }
+        }
+
+        .animate-scrollDot {
+          animation: scrollDot 1.8s infinite ease-in-out;
         }
 
         html {
