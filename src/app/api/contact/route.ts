@@ -22,6 +22,7 @@ export async function POST(req: Request) {
     await transporter.sendMail({
       from: `"${name}" <${email}>`,
       to: process.env.GMAIL_USER,
+      replyTo: email,
       subject: `GD Consulting - Contact Form Submission from ${name}`,
       text: message,
       html: `<p>${message}</p><p>From: ${name} (${email})</p>`,

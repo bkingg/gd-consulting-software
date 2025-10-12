@@ -1,4 +1,16 @@
 import "./globals.css";
+import { Orbitron, Rajdhani } from "next/font/google";
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-orbitron",
+});
+const rajdhani = Rajdhani({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-rajdhani",
+});
 
 export const metadata = {
   title: "GD Consulting | Ingénierie Logicielle & Conseil",
