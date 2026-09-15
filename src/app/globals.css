@@ -26,8 +26,83 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-orbitron);
 }
 p, span, a, li, button {
-  font-family: var(--font-body);
+  font-family: var(--font-rajdhani);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.glass-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 128, 0.1),
+    rgba(0, 255, 128, 0.03)
+  );
+  backdrop-filter: blur(25px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 255, 128, 0.2);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+}
+
+.neon-text-green {
+  text-shadow: 0 0 6px rgba(0, 255, 128, 0.5),
+    0 0 12px rgba(0, 255, 128, 0.3), 0 0 18px rgba(0, 255, 128, 0.2);
+}
+
+.animate-gradient-smooth {
+  background-size: 200% 100%;
+  animation: gradientSmooth 12s linear infinite;
+}
+
+@keyframes gradientSmooth {
+  0% {
+    transform: translateX(-25%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes scrollDot {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  50% {
+    top: 50%;
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-scrollDot {
+  animation: scrollDot 1.8s infinite ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-gradient-smooth,
+  .animate-scrollDot {
+    animation: none;
+  }
 }

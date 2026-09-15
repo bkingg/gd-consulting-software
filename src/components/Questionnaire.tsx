@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Field, Lang, SECTIONS, Section, UI } from "@/lib/questionnaire";
@@ -179,28 +178,19 @@ export default function Questionnaire() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/70 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/gd-consulting-logo.png" alt="GD Consulting Logo" width={40} height={40} className="rounded-full" />
-            <span className="hidden text-lg font-bold tracking-wide sm:inline">GD Consulting</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-sm text-white/70 hover:text-white">{t(UI.back)}</Link>
-            <div className="flex overflow-hidden rounded-full border border-white/15" role="group" aria-label="Langue / Language">
-              {(["fr", "en"] as Lang[]).map((l) => (
-                <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l}
-                  className={`px-3 py-1.5 text-sm font-semibold cursor-pointer ${lang === l ? "bg-green-500 text-black" : "text-white/70"}`}>
-                  {l.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
+    <div className="min-h-screen bg-black text-white pt-24">
+      <div className="mx-auto flex max-w-6xl justify-end px-4 md:px-8 mb-4">
+        <div className="flex overflow-hidden rounded-full border border-white/15" role="group" aria-label="Langue / Language">
+          {(["fr", "en"] as Lang[]).map((l) => (
+            <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l}
+              className={`px-3 py-1.5 text-sm font-semibold cursor-pointer ${lang === l ? "bg-green-500 text-black" : "text-white/70"}`}>
+              {l.toUpperCase()}
+            </button>
+          ))}
         </div>
-      </header>
+      </div>
 
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-12 md:px-8">
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-4 md:px-8">
         {status === "sent" ? (
           <div className="mx-auto max-w-2xl rounded-2xl border border-green-500/30 bg-green-500/5 p-10 text-center">
             <h1 className="mb-4 text-4xl font-extrabold text-green-400">{t(UI.successTitle)}</h1>

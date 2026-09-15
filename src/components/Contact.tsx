@@ -65,13 +65,10 @@ const ContactForm = () => {
   };
 
   return (
-    <section
-      id="contact"
-      className="bg-gray-50 text-gray-900 py-32 px-8 text-center"
-    >
-      <h2 className="text-4xl md:text-5xl font-bold mb-6">
+    <section className="bg-gray-50 text-gray-900 py-32 px-8 text-center">
+      <h1 className="text-4xl md:text-5xl font-bold mb-6">
         Votre vision, notre expertise
-      </h2>
+      </h1>
       <p className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto">
         Confiez votre projet à des professionnels de confiance. Nous concevons
         des solutions logicielles robustes, sécurisées et évolutives, adaptées
