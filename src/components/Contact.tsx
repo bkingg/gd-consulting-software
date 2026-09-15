@@ -78,6 +78,14 @@ const ContactForm = () => {
         aux besoins de votre entreprise.
       </p>
 
+      <p className="text-lg mb-12 -mt-6 max-w-2xl mx-auto">
+        Un projet de site web ?{" "}
+        <a href="/questionnaire" className="text-green-600 font-semibold underline underline-offset-4 hover:text-green-500">
+          Remplissez notre questionnaire
+        </a>{" "}
+        pour recevoir une proposition adaptée.
+      </p>
+
       <form
         className="max-w-2xl mx-auto flex flex-col gap-6"
         onSubmit={handleSubmit}

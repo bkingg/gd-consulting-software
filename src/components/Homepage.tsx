@@ -232,6 +232,12 @@ const Homepage = () => {
               </a>
             )
           )}
+          <a
+            href="/questionnaire"
+            className="cursor-pointer px-4 py-2 rounded-full transition-all duration-300 text-white/70 hover:text-white hover:bg-green-500/30"
+          >
+            Questionnaire
+          </a>
         </nav>
 
         {/* Mobile Hamburger */}
@@ -267,6 +273,13 @@ const Homepage = () => {
                 </a>
               )
             )}
+            <a
+              href="/questionnaire"
+              onClick={() => setIsOpen(false)}
+              className="cursor-pointer px-6 py-2 rounded-full transition-all duration-300 text-white/70 hover:text-white hover:bg-green-500/30"
+            >
+              Questionnaire
+            </a>
           </div>
         )}
       </header>
