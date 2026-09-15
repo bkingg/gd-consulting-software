@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
+import NavigationProgressBar from "@/components/NavigationProgressBar";
 
 const NAV_LINKS = [
   { href: "/", label: "Accueil" },
@@ -49,14 +50,11 @@ const SiteHeader = () => {
 
   return (
     <>
-      {/* Top Gradient Line */}
-      <div className="fixed top-0 left-0 w-full h-[3px] z-[60] overflow-hidden">
-        <div className="animate-gradient-smooth h-full w-[200%] bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-500 opacity-40 blur-[1px]" />
-      </div>
+      <NavigationProgressBar />
 
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-black/40 px-4 md:px-8 py-8 md:py-3 flex items-center justify-center"
+        className="fixed top-0 left-0 w-full h-20 z-50 backdrop-blur-lg bg-black/40 px-4 md:px-8 flex items-center justify-center"
       >
         {/* Logo */}
         <Link

@@ -58,20 +58,6 @@ html {
     0 0 12px rgba(0, 255, 128, 0.3), 0 0 18px rgba(0, 255, 128, 0.2);
 }
 
-.animate-gradient-smooth {
-  background-size: 200% 100%;
-  animation: gradientSmooth 12s linear infinite;
-}
-
-@keyframes gradientSmooth {
-  0% {
-    transform: translateX(-25%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
-
 @keyframes scrollDot {
   0% {
     top: 0%;
@@ -101,7 +87,6 @@ html {
   html {
     scroll-behavior: auto;
   }
-  .animate-gradient-smooth,
   .animate-scrollDot {
     animation: none;
   }

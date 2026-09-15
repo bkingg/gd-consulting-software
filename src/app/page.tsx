@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <section className="relative h-screen flex items-center justify-center text-center text-white bg-black">
+    <section className="relative h-screen pt-20 flex items-center justify-center text-center text-white bg-black">
       <NeuralNetworkBackground />
       <div className="relative z-10 px-6 max-w-4xl">
         <h1 className="text-5xl md:text-7xl font-extrabold glass-gradient mb-6 neon-text-green">
