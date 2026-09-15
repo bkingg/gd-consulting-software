@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/questionnaire", "/api/"],
+        disallow: ["/questionnaire", "/en/questionnaire", "/api/"],
       },
     ],
     sitemap: "https://gdco.tech/sitemap.xml",

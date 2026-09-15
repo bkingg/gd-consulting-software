@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
 import { z } from "zod";
+import { getTransporter, SENDER_EMAIL } from "@/lib/mailer";
 
 const payloadSchema = z.object({
   lang: z.enum(["fr", "en"]),
@@ -62,14 +62,11 @@ export async function POST(req: Request) {
         .join("") +
       `<p style="font-family:Arial,sans-serif;color:#888;font-size:12px;margin-top:24px">Langue du formulaire : ${lang.toUpperCase()}</p>`;
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASS },
-    });
+    const transporter = getTransporter();
 
     await transporter.sendMail({
-      from: `"GD Consulting – Questionnaire" <${process.env.GMAIL_USER}>`,
-      to: process.env.GMAIL_USER,
+      from: `"GD Consulting – Questionnaire" <${SENDER_EMAIL}>`,
+      to: SENDER_EMAIL,
       replyTo: email,
       subject: `Questionnaire site web – ${contact.company} (${contact.name})`,
       text,

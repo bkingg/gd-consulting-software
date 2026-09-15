@@ -3,6 +3,7 @@ import { Orbitron, Rajdhani } from "next/font/google";
 import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import HtmlLangSync from "@/components/HtmlLangSync";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -46,6 +47,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        <HtmlLangSync />
         <SiteHeader />
         {children}
         <SiteFooter />

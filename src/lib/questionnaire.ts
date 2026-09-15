@@ -1,5 +1,6 @@
-export type Lang = "fr" | "en";
-export type T = Record<Lang, string>;
+import { Lang, T, o } from "@/lib/i18n";
+
+export type { Lang, T };
 
 export type Field = {
   id: string;
@@ -14,8 +15,6 @@ export type Field = {
 };
 
 export type Section = { id: string; title: T; intro: T; fields: Field[] };
-
-const o = (fr: string, en: string): T => ({ fr, en });
 
 export const UI = {
   back: o("Retour au site", "Back to site"),

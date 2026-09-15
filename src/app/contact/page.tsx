@@ -5,20 +5,27 @@ export const metadata: Metadata = {
   title: "Contact | GD Consulting",
   description:
     "Confiez votre projet logiciel à GD Consulting. Contactez-nous pour discuter de solutions robustes, sécurisées et évolutives adaptées à votre entreprise.",
-  alternates: { canonical: "https://gdco.tech/contact" },
+  alternates: {
+    canonical: "https://gdco.tech/contact",
+    languages: {
+      fr: "https://gdco.tech/contact",
+      en: "https://gdco.tech/en/contact",
+    },
+  },
   openGraph: {
     title: "Contact | GD Consulting",
     description:
       "Contactez GD Consulting pour discuter de votre projet logiciel.",
     url: "https://gdco.tech/contact",
     siteName: "GD Consulting",
+    locale: "fr_FR",
   },
 };
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen">
-      <Contact />
+      <Contact lang="fr" />
     </div>
   );
 }

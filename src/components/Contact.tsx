@@ -2,15 +2,48 @@
 
 import { useState } from "react";
 import { z } from "zod";
+import { Lang, o } from "@/lib/i18n";
 
-// Zod schema for validation
-const contactSchema = z.object({
-  name: z.string().min(2, "Le nom est requis"),
-  email: z.string().email("Email invalide"),
-  message: z.string().min(5, "Le message est trop court"),
-});
+const UI = {
+  title: o("Votre vision, notre expertise", "Your vision, our expertise"),
+  intro: o(
+    "Confiez votre projet à des professionnels de confiance. Nous concevons des solutions logicielles robustes, sécurisées et évolutives, adaptées aux besoins de votre entreprise.",
+    "Entrust your project to professionals you can rely on. We design robust, secure and scalable software solutions tailored to your business needs."
+  ),
+  questionnaireLead: o("Un projet de site web ?", "A website project?"),
+  questionnaireLink: o(
+    "Remplissez notre questionnaire",
+    "Fill out our questionnaire"
+  ),
+  questionnaireTail: o(
+    "pour recevoir une proposition adaptée.",
+    "to receive a tailored proposal."
+  ),
+  namePlaceholder: o("Votre nom", "Your name"),
+  emailPlaceholder: o("Votre email", "Your email"),
+  messagePlaceholder: o("Votre message", "Your message"),
+  sending: o("Envoi...", "Sending..."),
+  submit: o("Envoyer le message", "Send message"),
+  success: o("Message envoyé avec succès !", "Message sent successfully!"),
+  sendError: o(
+    "Erreur lors de l'envoi. Réessayez plus tard.",
+    "Something went wrong sending your message. Please try again later."
+  ),
+  serverError: o("Erreur serveur. Réessayez plus tard.", "Server error. Please try again later."),
+  nameRequired: o("Le nom est requis", "Name is required"),
+  emailInvalid: o("Email invalide", "Invalid email"),
+  messageTooShort: o("Le message est trop court", "Message is too short"),
+};
 
-const ContactForm = () => {
+const ContactForm = ({ lang = "fr" }: { lang?: Lang }) => {
+  const t = (x: Record<Lang, string>) => x[lang];
+
+  const contactSchema = z.object({
+    name: z.string().min(2, t(UI.nameRequired)),
+    email: z.string().email(t(UI.emailInvalid)),
+    message: z.string().min(5, t(UI.messageTooShort)),
+  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,7 +63,6 @@ const ContactForm = () => {
       message: formData.get("message")?.toString() || "",
     };
 
-    // Validate with Zod
     const result = contactSchema.safeParse(data);
     if (!result.success) {
       const flattened = result.error.flatten();
@@ -54,11 +86,11 @@ const ContactForm = () => {
         setSuccess(true);
         form.reset();
       } else {
-        alert("Erreur lors de l'envoi. Réessayez plus tard.");
+        alert(t(UI.sendError));
       }
     } catch (err) {
       console.error(err);
-      alert("Erreur serveur. Réessayez plus tard.");
+      alert(t(UI.serverError));
     } finally {
       setLoading(false);
     }
@@ -66,21 +98,20 @@ const ContactForm = () => {
 
   return (
     <section className="bg-gray-50 text-gray-900 py-32 px-8 text-center">
-      <h1 className="text-4xl md:text-5xl font-bold mb-6">
-        Votre vision, notre expertise
-      </h1>
+      <h1 className="text-4xl md:text-5xl font-bold mb-6">{t(UI.title)}</h1>
       <p className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto">
-        Confiez votre projet à des professionnels de confiance. Nous concevons
-        des solutions logicielles robustes, sécurisées et évolutives, adaptées
-        aux besoins de votre entreprise.
+        {t(UI.intro)}
       </p>
 
       <p className="text-lg mb-12 -mt-6 max-w-2xl mx-auto">
-        Un projet de site web ?{" "}
-        <a href="/questionnaire" className="text-green-600 font-semibold underline underline-offset-4 hover:text-green-500">
-          Remplissez notre questionnaire
+        {t(UI.questionnaireLead)}{" "}
+        <a
+          href={lang === "en" ? "/en/questionnaire" : "/questionnaire"}
+          className="text-green-600 font-semibold underline underline-offset-4 hover:text-green-500"
+        >
+          {t(UI.questionnaireLink)}
         </a>{" "}
-        pour recevoir une proposition adaptée.
+        {t(UI.questionnaireTail)}
       </p>
 
       <form
@@ -91,7 +122,7 @@ const ContactForm = () => {
           <input
             type="text"
             name="name"
-            placeholder="Votre nom"
+            placeholder={t(UI.namePlaceholder)}
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
           {errors.name && (
@@ -103,7 +134,7 @@ const ContactForm = () => {
           <input
             type="email"
             name="email"
-            placeholder="Votre email"
+            placeholder={t(UI.emailPlaceholder)}
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
           {errors.email && (
@@ -114,7 +145,7 @@ const ContactForm = () => {
         <div className="flex flex-col">
           <textarea
             name="message"
-            placeholder="Votre message"
+            placeholder={t(UI.messagePlaceholder)}
             rows={6}
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
@@ -133,17 +164,15 @@ const ContactForm = () => {
           {loading ? (
             <>
               <span className="loader border-t-2 border-white rounded-full w-5 h-5 animate-spin"></span>
-              Envoi...
+              {t(UI.sending)}
             </>
           ) : (
-            "Envoyer le message"
+            t(UI.submit)
           )}
         </button>
 
         {success && (
-          <p className="text-green-500 font-semibold mt-4">
-            Message envoyé avec succès !
-          </p>
+          <p className="text-green-500 font-semibold mt-4">{t(UI.success)}</p>
         )}
       </form>
 

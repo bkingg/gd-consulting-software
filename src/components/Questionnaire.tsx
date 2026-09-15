@@ -15,8 +15,12 @@ const isFilled = (v: Value | undefined) =>
 const inputClass =
   "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/40";
 
-export default function Questionnaire() {
-  const [lang, setLang] = useState<Lang>("fr");
+export default function Questionnaire({
+  initialLang = "fr",
+}: {
+  initialLang?: Lang;
+}) {
+  const [lang, setLang] = useState<Lang>(initialLang);
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [honeypot, setHoneypot] = useState("");

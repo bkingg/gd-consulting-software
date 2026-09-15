@@ -6,13 +6,20 @@ export const metadata: Metadata = {
   title: "Notre expertise | GD Consulting",
   description:
     "Développement de logiciels sur mesure, architecture cloud scalable et intelligence artificielle : découvrez l'expertise de GD Consulting.",
-  alternates: { canonical: "https://gdco.tech/expertise" },
+  alternates: {
+    canonical: "https://gdco.tech/expertise",
+    languages: {
+      fr: "https://gdco.tech/expertise",
+      en: "https://gdco.tech/en/expertise",
+    },
+  },
   openGraph: {
     title: "Notre expertise | GD Consulting",
     description:
       "Développement de logiciels sur mesure, architecture cloud scalable et intelligence artificielle.",
     url: "https://gdco.tech/expertise",
     siteName: "GD Consulting",
+    locale: "fr_FR",
   },
 };
 

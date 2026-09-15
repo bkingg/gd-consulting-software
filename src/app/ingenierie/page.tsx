@@ -5,13 +5,20 @@ export const metadata: Metadata = {
   title: "Ingénierie logicielle | GD Consulting",
   description:
     "Technologie, sécurité et innovation : découvrez l'approche d'ingénierie logicielle de GD Consulting, pensée pour durer et scalable pour vos projets les plus ambitieux.",
-  alternates: { canonical: "https://gdco.tech/ingenierie" },
+  alternates: {
+    canonical: "https://gdco.tech/ingenierie",
+    languages: {
+      fr: "https://gdco.tech/ingenierie",
+      en: "https://gdco.tech/en/ingenierie",
+    },
+  },
   openGraph: {
     title: "Ingénierie logicielle | GD Consulting",
     description:
       "Une approche d'ingénierie logicielle rigoureuse, sécurisée et pensée pour durer.",
     url: "https://gdco.tech/ingenierie",
     siteName: "GD Consulting",
+    locale: "fr_FR",
   },
 };
 

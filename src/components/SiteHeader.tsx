@@ -6,19 +6,33 @@ import { usePathname } from "next/navigation";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 import NavigationProgressBar from "@/components/NavigationProgressBar";
+import type { Lang } from "@/lib/i18n";
 
-const NAV_LINKS = [
-  { href: "/", label: "Accueil" },
-  { href: "/expertise", label: "Expertise" },
-  { href: "/ingenierie", label: "Ingénierie" },
-  { href: "/contact", label: "Contact" },
-  { href: "/questionnaire", label: "Questionnaire" },
+const NAV_LINKS: { base: string; label: Record<Lang, string> }[] = [
+  { base: "", label: { fr: "Accueil", en: "Home" } },
+  { base: "/expertise", label: { fr: "Expertise", en: "Expertise" } },
+  { base: "/ingenierie", label: { fr: "Ingénierie", en: "Engineering" } },
+  { base: "/contact", label: { fr: "Contact", en: "Contact" } },
+  { base: "/questionnaire", label: { fr: "Questionnaire", en: "Questionnaire" } },
 ];
+
+const localizeHref = (base: string, lang: Lang) => {
+  if (lang === "fr") return base === "" ? "/" : base;
+  return base === "" ? "/en" : `/en${base}`;
+};
 
 const SiteHeader = () => {
   const pathname = usePathname();
   const headerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const isEn = pathname === "/en" || pathname.startsWith("/en/");
+  const lang: Lang = isEn ? "en" : "fr";
+  const otherLangHref = isEn
+    ? pathname.replace(/^\/en/, "") || "/"
+    : pathname === "/"
+    ? "/en"
+    : `/en${pathname}`;
 
   useEffect(() => {
     let ticking = false;
@@ -48,6 +62,27 @@ const SiteHeader = () => {
       pathname === href ? "bg-green-500/50 text-white" : "text-white/70"
     }`;
 
+  const LanguageSwitcher = () => (
+    <div
+      className="flex overflow-hidden rounded-full border border-white/15"
+      role="group"
+      aria-label="Langue / Language"
+    >
+      {(["fr", "en"] as Lang[]).map((l) => (
+        <Link
+          key={l}
+          href={l === lang ? pathname : otherLangHref}
+          aria-current={l === lang}
+          className={`px-3 py-1.5 text-xs font-semibold ${
+            l === lang ? "bg-green-500 text-black" : "text-white/70 hover:text-white"
+          }`}
+        >
+          {l.toUpperCase()}
+        </Link>
+      ))}
+    </div>
+  );
+
   return (
     <>
       <NavigationProgressBar />
@@ -58,7 +93,7 @@ const SiteHeader = () => {
       >
         {/* Logo */}
         <Link
-          href="/"
+          href={localizeHref("", lang)}
           className="absolute left-4 md:left-8 flex items-center space-x-3 md:space-x-4"
         >
           <Image
@@ -74,12 +109,16 @@ const SiteHeader = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <nav className="hidden md:flex space-x-6">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} className={linkClasses(href)}>
-              {label}
-            </Link>
-          ))}
+        <nav className="hidden md:flex items-center space-x-6">
+          {NAV_LINKS.map(({ base, label }) => {
+            const href = localizeHref(base, lang);
+            return (
+              <Link key={base} href={href} className={linkClasses(href)}>
+                {label[lang]}
+              </Link>
+            );
+          })}
+          <LanguageSwitcher />
         </nav>
 
         {/* Mobile Hamburger */}
@@ -100,16 +139,22 @@ const SiteHeader = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md flex flex-col items-center py-4 space-y-3 md:hidden">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setIsOpen(false)}
-                className={linkClasses(href)}
-              >
-                {label}
-              </Link>
-            ))}
+            {NAV_LINKS.map(({ base, label }) => {
+              const href = localizeHref(base, lang);
+              return (
+                <Link
+                  key={base}
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                  className={linkClasses(href)}
+                >
+                  {label[lang]}
+                </Link>
+              );
+            })}
+            <div onClick={() => setIsOpen(false)}>
+              <LanguageSwitcher />
+            </div>
           </div>
         )}
       </header>
