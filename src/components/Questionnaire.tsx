@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Field, Lang, SECTIONS, Section, UI } from "@/lib/questionnaire";
 
 type Value = string | number | number[];
@@ -23,6 +23,12 @@ export default function Questionnaire() {
   const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [formError, setFormError] = useState("");
+  const [rateLimited, setRateLimited] = useState(false);
+  const startedAt = useRef(0);
+
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
 
   const t = (x: Record<Lang, string>) => x[lang];
 
@@ -91,6 +97,7 @@ export default function Questionnaire() {
   const handleSubmit = async () => {
     if (!validate()) return;
     setStatus("sending");
+    setRateLimited(false);
     try {
       const res = await fetch("/api/questionnaire", {
         method: "POST",
@@ -98,6 +105,7 @@ export default function Questionnaire() {
         body: JSON.stringify({
           lang,
           website: honeypot,
+          startedAt: startedAt.current,
           contact: {
             name: String(answers.name ?? ""),
             company: String(answers.company ?? ""),
@@ -110,6 +118,7 @@ export default function Questionnaire() {
           })),
         }),
       });
+      if (res.status === 429) setRateLimited(true);
       if (!res.ok) throw new Error(String(res.status));
       setStatus("sent");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -281,7 +290,7 @@ export default function Questionnaire() {
                   </button>
                   <div role="status" aria-live="polite" className="mt-4 text-sm">
                     {formError && <p className="text-red-400">{formError}</p>}
-                    {status === "error" && <p className="text-red-400">{t(UI.error)}</p>}
+                    {status === "error" && <p className="text-red-400">{t(rateLimited ? UI.rateLimited : UI.error)}</p>}
                   </div>
                   <p className="mt-4 text-xs text-white/45">{t(UI.privacy)}</p>
                 </div>

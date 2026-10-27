@@ -1,9 +1,11 @@
 import nodemailer from "nodemailer";
 import { z } from "zod";
+import { escapeHtml, getClientIp, isRateLimited, isTooFast } from "@/lib/antiSpam";
 
 const payloadSchema = z.object({
   lang: z.enum(["fr", "en"]),
   website: z.string().optional(), // honeypot: must stay empty
+  startedAt: z.number(), // timestamp when the form was displayed
   contact: z.object({
     name: z.string().trim().min(1).max(200),
     company: z.string().trim().min(1).max(200),
@@ -20,8 +22,8 @@ const payloadSchema = z.object({
     .max(10),
 });
 
-const escapeHtml = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+// Nobody fills this multi-section form in under 10 seconds
+const MIN_FILL_TIME_MS = 10000;
 
 export async function POST(req: Request) {
   try {
@@ -29,10 +31,14 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return Response.json({ error: "Invalid payload" }, { status: 400 });
     }
-    const { lang, website, contact, sections } = parsed.data;
+    const { lang, website, startedAt, contact, sections } = parsed.data;
 
     // Silently accept bot submissions without sending anything
-    if (website) return Response.json({ success: true });
+    if (website || isTooFast(startedAt, MIN_FILL_TIME_MS)) return Response.json({ success: true });
+
+    if (isRateLimited(`questionnaire:${getClientIp(req)}`)) {
+      return Response.json({ error: "Too many requests" }, { status: 429 });
+    }
 
     if (!contact.email && !contact.phone) {
       return Response.json({ error: "Missing contact" }, { status: 400 });
@@ -69,7 +75,7 @@ export async function POST(req: Request) {
 
     await transporter.sendMail({
       from: `"GD Consulting – Questionnaire" <${process.env.GMAIL_USER}>`,
-      to: process.env.GMAIL_USER,
+      to: "contact@gdco.tech",
       replyTo: email,
       subject: `Questionnaire site web – ${contact.company} (${contact.name})`,
       text,

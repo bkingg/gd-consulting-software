@@ -43,8 +43,12 @@ export const UI = {
     "We've received your questionnaire. We'll get back to you within 2 business days."
   ),
   error: o(
-    "L'envoi a échoué. Réessayez, ou écrivez-nous à gdconsultingsn@gmail.com.",
-    "Sending failed. Try again, or email us at gdconsultingsn@gmail.com."
+    "L'envoi a échoué. Réessayez, ou écrivez-nous à contact@gdco.tech.",
+    "Sending failed. Try again, or email us at contact@gdco.tech."
+  ),
+  rateLimited: o(
+    "Trop d'envois depuis votre connexion. Réessayez dans quelques minutes.",
+    "Too many submissions from your connection. Try again in a few minutes."
   ),
   privacy: o(
     "Vos informations restent confidentielles et servent uniquement à préparer votre proposition.",
