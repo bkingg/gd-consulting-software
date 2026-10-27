@@ -1,4 +1,6 @@
-export type Lang = "fr" | "en";
+import type { Locale, QuestionnaireKind } from "@/lib/i18n";
+
+export type Lang = Locale;
 export type T = Record<Lang, string>;
 
 export type Field = {
@@ -19,11 +21,6 @@ const o = (fr: string, en: string): T => ({ fr, en });
 
 export const UI = {
   back: o("Retour au site", "Back to site"),
-  heroTitle: o("Parlons de votre futur site web", "Let's talk about your new website"),
-  heroText: o(
-    "Ce questionnaire prend environ 10 minutes. Vos réponses nous aident à comprendre votre activité et vos objectifs, pour vous proposer la bonne solution dès notre premier échange.",
-    "This questionnaire takes about 10 minutes. Your answers help us understand your business and goals, so we can suggest the right solution from our very first call."
-  ),
   progress: o("sections complétées", "sections completed"),
   select: o("Choisir…", "Choose…"),
   required: o("Ce champ est requis.", "This field is required."),
@@ -56,7 +53,7 @@ export const UI = {
   ),
 };
 
-export const SECTIONS: Section[] = [
+const ABOUT_SECTION: Section =
   {
     id: "about",
     title: o("Vous et votre activité", "You and your business"),
@@ -72,7 +69,10 @@ export const SECTIONS: Section[] = [
       { id: "size", type: "select", label: o("Taille de l'entreprise", "Company size"), options: [o("Indépendant", "Self-employed"), o("2–10 personnes", "2–10 people"), o("11–50 personnes", "11–50 people"), o("Plus de 50", "More than 50")] },
       { id: "source", type: "select", label: o("Comment nous avez-vous connus ?", "How did you hear about us?"), full: true, options: [o("Recommandation", "Referral"), o("Réseaux sociaux", "Social media"), o("Recherche Google", "Google search"), o("Événement", "Event"), o("Autre", "Other")] },
     ],
-  },
+  };
+
+const WEBSITE_SECTIONS: Section[] = [
+  ABOUT_SECTION,
   {
     id: "project",
     title: o("Votre projet", "Your project"),
@@ -120,3 +120,101 @@ export const SECTIONS: Section[] = [
     ],
   },
 ];
+
+const SOFTWARE_SECTIONS: Section[] = [
+  ABOUT_SECTION,
+  {
+    id: "project",
+    title: o("Votre projet", "Your project"),
+    intro: o("Le problème à résoudre compte plus que la solution imaginée.", "The problem to solve matters more than the solution you have in mind."),
+    fields: [
+      { id: "status", type: "radio", label: o("Situation actuelle", "Current situation"), required: true, full: true, options: [o("Nouveau logiciel", "Brand-new software"), o("Refonte ou modernisation d'un système existant", "Rebuild or modernise an existing system"), o("Évolution d'un logiciel existant", "Extend existing software"), o("Audit ou conseil technique", "Technical audit or advice")] },
+      { id: "softwareType", type: "select", label: o("Type de logiciel", "Type of software"), required: true, options: [o("Application web métier", "Business web application"), o("Application mobile", "Mobile app"), o("Plateforme SaaS", "SaaS platform"), o("API / intégration entre systèmes", "API / system integration"), o("Automatisation / outil interne", "Automation / internal tool"), o("Data / intelligence artificielle", "Data / artificial intelligence"), o("Je ne sais pas encore", "Not sure yet")] },
+      { id: "problem", type: "textarea", label: o("Quel problème ce logiciel doit-il résoudre ?", "What problem should this software solve?"), required: true, full: true, placeholder: o("Saisie manuelle, outils qui ne communiquent pas, process lent, perte de données…", "Manual data entry, tools that don't talk to each other, slow process, lost data…") },
+      { id: "currentProcess", type: "textarea", label: o("Comment faites-vous aujourd'hui ?", "How do you handle it today?"), full: true, placeholder: o("Excel, papier, un logiciel existant…", "Spreadsheets, paper, existing software…") },
+      { id: "why", type: "textarea", label: o("Pourquoi lancer ce projet maintenant ?", "Why start this project now?"), full: true },
+      { id: "success", type: "textarea", label: o("Dans 6 mois, à quoi verrez-vous que le projet est un succès ?", "In 6 months, how will you know the project worked?"), full: true },
+    ],
+  },
+  {
+    id: "users",
+    title: o("Utilisateurs et usages", "Users and usage"),
+    intro: o("Qui utilisera le logiciel, où et à quelle échelle.", "Who will use the software, where and at what scale."),
+    fields: [
+      { id: "users", type: "textarea", label: o("Qui utilisera le logiciel ?", "Who will use the software?"), full: true, placeholder: o("Employés, clients, partenaires, agents terrain…", "Staff, customers, partners, field agents…") },
+      { id: "userCount", type: "select", label: o("Nombre d'utilisateurs prévus", "Expected number of users"), options: [o("Moins de 10", "Fewer than 10"), o("10 à 100", "10 to 100"), o("100 à 1 000", "100 to 1,000"), o("Plus de 1 000", "More than 1,000"), o("Je ne sais pas", "Not sure")] },
+      { id: "platforms", type: "checks", label: o("Plateformes", "Platforms"), full: true, options: [o("Navigateur web", "Web browser"), o("iOS", "iOS"), o("Android", "Android"), o("Ordinateur (Windows / macOS)", "Desktop (Windows / macOS)"), o("API uniquement", "API only")] },
+      { id: "offline", type: "radio", label: o("Usage sans connexion internet ?", "Needs to work offline?"), full: true, options: [o("Oui, indispensable", "Yes, essential"), o("Utile mais pas indispensable", "Nice to have"), o("Non", "No")] },
+      { id: "languages", type: "checks", label: o("Langues de l'interface", "Interface languages"), full: true, options: [o("Français", "French"), o("Anglais", "English"), o("Wolof", "Wolof"), o("Arabe", "Arabic"), o("Autre", "Other")] },
+    ],
+  },
+  {
+    id: "technical",
+    title: o("Contexte technique", "Technical context"),
+    intro: o("Répondez à ce que vous savez : nous complétons le reste ensemble.", "Answer what you know: we'll fill in the rest together."),
+    fields: [
+      { id: "existingSystems", type: "textarea", label: o("Outils et systèmes déjà en place", "Tools and systems already in place"), full: true, placeholder: o("ERP, CRM, comptabilité, base de données, site web…", "ERP, CRM, accounting, database, website…") },
+      { id: "integrations", type: "checks", label: o("Intégrations nécessaires", "Integrations needed"), full: true, options: [o("Paiement Wave / Orange Money", "Wave / Orange Money payments"), o("Paiement par carte", "Card payments"), o("ERP / CRM", "ERP / CRM"), o("Comptabilité / facturation", "Accounting / invoicing"), o("SMS / WhatsApp", "SMS / WhatsApp"), o("E-mail", "Email"), o("Cartographie / géolocalisation", "Maps / geolocation"), o("IA / modèles de langage", "AI / language models"), o("Authentification d'entreprise (SSO)", "Company sign-in (SSO)")] },
+      { id: "sensitiveData", type: "checks", label: o("Données sensibles traitées", "Sensitive data handled"), full: true, options: [o("Données personnelles", "Personal data"), o("Données financières", "Financial data"), o("Données de santé", "Health data"), o("Aucune donnée sensible", "No sensitive data"), o("Je ne sais pas", "Not sure")] },
+      { id: "hosting", type: "radio", label: o("Hébergement souhaité", "Preferred hosting"), full: true, options: [o("Cloud (AWS, Azure, Google Cloud…)", "Cloud (AWS, Azure, Google Cloud…)"), o("Serveurs internes", "On-premise servers"), o("À définir", "To be decided")] },
+      { id: "constraints", type: "textarea", label: o("Contraintes techniques ou réglementaires", "Technical or regulatory constraints"), full: true, placeholder: o("Technologie imposée, normes, sécurité, audit…", "Required technology, standards, security, audits…") },
+    ],
+  },
+  {
+    id: "organisation",
+    title: o("Organisation et calendrier", "Organisation and timeline"),
+    intro: o("Pour proposer un plan réaliste dès le premier échange.", "So we can suggest a realistic plan from the first call."),
+    fields: [
+      { id: "documents", type: "checks", label: o("Ce que vous avez déjà", "What you already have"), full: true, options: [o("Cahier des charges", "Requirements document"), o("Maquettes / prototype", "Mock-ups / prototype"), o("Documentation technique", "Technical documentation"), o("Code source existant", "Existing source code"), o("Rien pour l'instant", "Nothing yet")] },
+      { id: "team", type: "radio", label: o("Avez-vous une équipe technique interne ?", "Do you have an in-house tech team?"), options: [o("Oui", "Yes"), o("Partiellement", "Partly"), o("Non", "No")] },
+      { id: "maintenance", type: "radio", label: o("Qui assurera la maintenance ?", "Who will maintain it?"), options: [o("GD Consulting", "GD Consulting"), o("Notre équipe", "Our team"), o("À définir", "To be decided")] },
+      { id: "timeline", type: "select", label: o("Délai souhaité", "Desired timeline"), options: [o("Moins de 3 mois", "Under 3 months"), o("3 à 6 mois", "3 to 6 months"), o("6 à 12 mois", "6 to 12 months"), o("Plus de 12 mois", "Over 12 months"), o("Pas de date fixe", "No fixed date")] },
+      { id: "budget", type: "text", label: o("Budget envisagé", "Budget in mind"), hint: o("Une fourchette suffit.", "A range is fine.") },
+      { id: "notes", type: "textarea", label: o("Autre chose à nous dire ?", "Anything else we should know?"), full: true },
+    ],
+  },
+];
+
+export type QuestionnaireConfig = { heroTitle: T; heroText: T; sections: Section[] };
+
+export const QUESTIONNAIRES: Record<QuestionnaireKind, QuestionnaireConfig> = {
+  website: {
+    heroTitle: o("Parlons de votre futur site web", "Let's talk about your new website"),
+    heroText: o(
+      "Ce questionnaire prend environ 10 minutes. Vos réponses nous aident à comprendre votre activité et vos objectifs, pour vous proposer la bonne solution dès notre premier échange.",
+      "This questionnaire takes about 10 minutes. Your answers help us understand your business and goals, so we can suggest the right solution from our very first call."
+    ),
+    sections: WEBSITE_SECTIONS,
+  },
+  software: {
+    heroTitle: o("Parlons de votre projet logiciel", "Let's talk about your software project"),
+    heroText: o(
+      "Ce questionnaire prend environ 15 minutes. Vos réponses nous aident à comprendre votre besoin, vos utilisateurs et votre contexte technique, pour vous proposer une approche adaptée dès notre premier échange.",
+      "This questionnaire takes about 15 minutes. Your answers help us understand your needs, your users and your technical context, so we can suggest the right approach from our very first call."
+    ),
+    sections: SOFTWARE_SECTIONS,
+  },
+};
+
+// Copy for the /questionnaire page where visitors pick a project type
+export const PICKER = {
+  title: o("Quel est votre projet ?", "What's your project?"),
+  text: o(
+    "Choisissez le questionnaire qui correspond à votre besoin. Nous revenons vers vous sous 48 h ouvrées avec une proposition adaptée.",
+    "Pick the questionnaire that fits your needs. We'll get back to you within 2 business days with a tailored proposal."
+  ),
+  duration: o("min", "min"),
+  start: o("Commencer", "Start"),
+  kinds: {
+    website: {
+      title: o("Site web", "Website"),
+      text: o("Site vitrine, boutique en ligne, réservation, landing page, blog…", "Showcase site, online store, booking, landing page, blog…"),
+      minutes: 10,
+    },
+    software: {
+      title: o("Logiciel sur mesure", "Custom software"),
+      text: o("Application métier, plateforme SaaS, application mobile, intégrations, data et IA…", "Business application, SaaS platform, mobile app, integrations, data and AI…"),
+      minutes: 15,
+    },
+  } satisfies Record<QuestionnaireKind, { title: T; text: T; minutes: number }>,
+};

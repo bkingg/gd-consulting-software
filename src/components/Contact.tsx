@@ -1,16 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
+import type { Dictionary } from "@/lib/dictionaries";
+import { Locale, paths } from "@/lib/i18n";
 
-// Zod schema for validation
-const contactSchema = z.object({
-  name: z.string().trim().min(2, "Le nom est requis").max(100, "Le nom est trop long (100 caractères max)"),
-  email: z.email("Email invalide").max(254, "Email trop long"),
-  message: z.string().trim().min(5, "Le message est trop court").max(5000, "Le message est trop long (5000 caractères max)"),
-});
+type ContactDict = Dictionary["contact"];
 
-const ContactForm = () => {
+// Zod schema for validation, with messages in the page language
+const makeSchema = (e: ContactDict["errors"]) =>
+  z.object({
+    name: z.string().trim().min(2, e.name).max(100, e.nameLong),
+    email: z.email(e.email).max(254, e.emailLong),
+    message: z.string().trim().min(5, e.message).max(5000, e.messageLong),
+  });
+
+const ContactForm = ({
+  lang,
+  dict,
+  imageAlt,
+}: {
+  lang: Locale;
+  dict: ContactDict;
+  imageAlt: string;
+}) => {
+  const contactSchema = useMemo(() => makeSchema(dict.errors), [dict]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -64,42 +80,48 @@ const ContactForm = () => {
         form.reset();
         startedAt.current = Date.now();
       } else if (res.status === 429) {
-        alert("Trop de messages envoyés. Réessayez dans quelques minutes.");
+        alert(dict.errors.rateLimited);
       } else {
-        alert("Erreur lors de l'envoi. Réessayez plus tard.");
+        alert(dict.errors.send);
       }
     } catch (err) {
       console.error(err);
-      alert("Erreur serveur. Réessayez plus tard.");
+      alert(dict.errors.server);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section
-      id="contact"
-      className="bg-gray-50 text-gray-900 py-32 px-8 text-center"
-    >
-      <h2 className="text-4xl md:text-5xl font-bold mb-6">
-        Votre vision, notre expertise
+    <div className="bg-gray-50 text-gray-900 py-24 md:py-32 px-6 md:px-8">
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-[5fr_7fr] gap-12 lg:gap-16 items-stretch">
+      <div className="relative hidden lg:block min-h-[36rem] overflow-hidden rounded-3xl">
+        <Image
+          src="/images/developer-laptop.webp"
+          alt={imageAlt}
+          fill
+          sizes="40vw"
+          className="object-cover"
+        />
+      </div>
+      <div className="relative text-center lg:text-left">
+      <h2 className="text-3xl md:text-5xl font-bold mb-6 text-balance">
+        {dict.title}
       </h2>
-      <p className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto">
-        Confiez votre projet à des professionnels de confiance. Nous concevons
-        des solutions logicielles robustes, sécurisées et évolutives, adaptées
-        aux besoins de votre entreprise.
+      <p className="text-xl md:text-2xl mb-6 max-w-2xl mx-auto lg:mx-0 text-pretty">
+        {dict.text}
       </p>
 
-      <p className="text-lg mb-12 -mt-6 max-w-2xl mx-auto">
-        Un projet de site web ?{" "}
-        <a href="/questionnaire" className="text-green-600 font-semibold underline underline-offset-4 hover:text-green-500">
-          Remplissez notre questionnaire
-        </a>{" "}
-        pour recevoir une proposition adaptée.
+      <p className="text-lg mb-12 max-w-2xl mx-auto lg:mx-0">
+        {dict.questionnaireBefore}{" "}
+        <Link href={paths.questionnaires(lang)} className="text-green-700 font-semibold underline underline-offset-4 hover:text-green-600">
+          {dict.questionnaireLink}
+        </Link>{" "}
+        {dict.questionnaireAfter}
       </p>
 
       <form
-        className="max-w-2xl mx-auto flex flex-col gap-6"
+        className="max-w-2xl mx-auto lg:mx-0 flex flex-col gap-6 text-left"
         onSubmit={handleSubmit}
       >
         {/* Honeypot: hidden from humans, bots tend to fill it */}
@@ -115,7 +137,8 @@ const ContactForm = () => {
             type="text"
             name="name"
             maxLength={100}
-            placeholder="Votre nom"
+            placeholder={dict.name}
+            aria-label={dict.name}
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
           {errors.name && (
@@ -128,7 +151,8 @@ const ContactForm = () => {
             type="email"
             name="email"
             maxLength={254}
-            placeholder="Votre email"
+            placeholder={dict.email}
+            aria-label={dict.email}
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
           {errors.email && (
@@ -140,7 +164,8 @@ const ContactForm = () => {
           <textarea
             name="message"
             maxLength={5000}
-            placeholder="Votre message"
+            placeholder={dict.message}
+            aria-label={dict.message}
             rows={6}
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
@@ -159,19 +184,21 @@ const ContactForm = () => {
           {loading ? (
             <>
               <span className="loader border-t-2 border-white rounded-full w-5 h-5 animate-spin"></span>
-              Envoi...
+              {dict.sending}
             </>
           ) : (
-            "Envoyer le message"
+            dict.submit
           )}
         </button>
 
         {success && (
-          <p className="text-green-500 font-semibold mt-4">
-            Message envoyé avec succès !
+          <p className="text-green-700 font-semibold mt-4">
+            {dict.success}
           </p>
         )}
       </form>
+      </div>
+      </div>
 
       <style jsx>{`
         .loader {
@@ -179,7 +206,7 @@ const ContactForm = () => {
           border-top-color: transparent;
         }
       `}</style>
-    </section>
+    </div>
   );
 };
 

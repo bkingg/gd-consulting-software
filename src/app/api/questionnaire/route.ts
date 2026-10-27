@@ -4,6 +4,7 @@ import { escapeHtml, getClientIp, isRateLimited, isTooFast } from "@/lib/antiSpa
 
 const payloadSchema = z.object({
   lang: z.enum(["fr", "en"]),
+  kind: z.enum(["website", "software"]),
   website: z.string().optional(), // honeypot: must stay empty
   startedAt: z.number(), // timestamp when the form was displayed
   contact: z.object({
@@ -22,6 +23,11 @@ const payloadSchema = z.object({
     .max(10),
 });
 
+const KIND_LABELS = {
+  website: "Questionnaire site web",
+  software: "Questionnaire projet logiciel",
+};
+
 // Nobody fills this multi-section form in under 10 seconds
 const MIN_FILL_TIME_MS = 10000;
 
@@ -31,7 +37,7 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return Response.json({ error: "Invalid payload" }, { status: 400 });
     }
-    const { lang, website, startedAt, contact, sections } = parsed.data;
+    const { lang, kind, website, startedAt, contact, sections } = parsed.data;
 
     // Silently accept bot submissions without sending anything
     if (website || isTooFast(startedAt, MIN_FILL_TIME_MS)) return Response.json({ success: true });
@@ -50,7 +56,7 @@ export async function POST(req: Request) {
       .join("\n\n");
 
     const html =
-      `<h2 style="font-family:Arial,sans-serif">Questionnaire site web — ${escapeHtml(contact.company)}</h2>` +
+      `<h2 style="font-family:Arial,sans-serif">${KIND_LABELS[kind]} — ${escapeHtml(contact.company)}</h2>` +
       sections
         .map(
           (s, i) =>
@@ -77,7 +83,7 @@ export async function POST(req: Request) {
       from: `"GD Consulting – Questionnaire" <${process.env.GMAIL_USER}>`,
       to: "contact@gdco.tech",
       replyTo: email,
-      subject: `Questionnaire site web – ${contact.company} (${contact.name})`,
+      subject: `${KIND_LABELS[kind]} – ${contact.company} (${contact.name})`,
       text,
       html,
     });

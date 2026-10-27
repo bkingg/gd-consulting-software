@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Field, Lang, SECTIONS, Section, UI } from "@/lib/questionnaire";
+import { LOCALES, Locale, QuestionnaireKind, paths } from "@/lib/i18n";
+import { Field, QUESTIONNAIRES, Section, UI } from "@/lib/questionnaire";
 
 type Value = string | number | number[];
 type Answers = Record<string, Value | undefined>;
@@ -16,8 +17,8 @@ const isFilled = (v: Value | undefined) =>
 const inputClass =
   "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/40";
 
-export default function Questionnaire() {
-  const [lang, setLang] = useState<Lang>("fr");
+export default function Questionnaire({ lang, kind }: { lang: Locale; kind: QuestionnaireKind }) {
+  const { heroTitle, heroText, sections: SECTIONS } = QUESTIONNAIRES[kind];
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [honeypot, setHoneypot] = useState("");
@@ -30,7 +31,7 @@ export default function Questionnaire() {
     startedAt.current = Date.now();
   }, []);
 
-  const t = (x: Record<Lang, string>) => x[lang];
+  const t = (x: Record<Locale, string>) => x[lang];
 
   const setValue = (id: string, value: Value) => {
     setAnswers((a) => ({ ...a, [id]: value }));
@@ -104,6 +105,7 @@ export default function Questionnaire() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lang,
+          kind,
           website: honeypot,
           startedAt: startedAt.current,
           contact: {
@@ -191,18 +193,20 @@ export default function Questionnaire() {
     <div className="min-h-screen bg-black text-white">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/70 backdrop-blur-lg">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/gd-consulting-logo.png" alt="GD Consulting Logo" width={40} height={40} className="rounded-full" />
-            <span className="hidden text-lg font-bold tracking-wide sm:inline">GD Consulting</span>
+          <Link href={paths.home(lang)} className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
+              <Image src="/gd-consulting-logo.png" alt="" width={30} height={19} />
+            </span>
+            <span className="font-heading hidden text-lg font-bold tracking-wide sm:inline">GD Consulting</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-sm text-white/70 hover:text-white">{t(UI.back)}</Link>
+            <Link href={paths.home(lang)} className="text-sm text-white/70 hover:text-white">{t(UI.back)}</Link>
             <div className="flex overflow-hidden rounded-full border border-white/15" role="group" aria-label="Langue / Language">
-              {(["fr", "en"] as Lang[]).map((l) => (
-                <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l}
-                  className={`px-3 py-1.5 text-sm font-semibold cursor-pointer ${lang === l ? "bg-green-500 text-black" : "text-white/70"}`}>
+              {LOCALES.map((l) => (
+                <Link key={l} href={paths.questionnaire(l, kind)} hrefLang={l} lang={l} aria-current={lang === l ? "true" : undefined}
+                  className={`px-3 py-1.5 text-sm font-semibold ${lang === l ? "bg-green-500 text-black" : "text-white/70 hover:text-white"}`}>
                   {l.toUpperCase()}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -214,15 +218,15 @@ export default function Questionnaire() {
           <div className="mx-auto max-w-2xl rounded-2xl border border-green-500/30 bg-green-500/5 p-10 text-center">
             <h1 className="mb-4 text-4xl font-extrabold text-green-400">{t(UI.successTitle)}</h1>
             <p className="mb-8 text-lg text-white/80">{t(UI.successText)}</p>
-            <Link href="/" className="inline-block rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 font-bold">
+            <Link href={paths.home(lang)} className="inline-block rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 font-bold">
               {t(UI.back)}
             </Link>
           </div>
         ) : (
           <>
             <div className="mb-12 max-w-3xl">
-              <h1 className="mb-5 text-4xl font-extrabold md:text-6xl">{t(UI.heroTitle)}</h1>
-              <p className="text-lg text-white/70 md:text-xl">{t(UI.heroText)}</p>
+              <h1 className="mb-5 text-4xl font-extrabold md:text-6xl">{t(heroTitle)}</h1>
+              <p className="text-lg text-white/70 md:text-xl">{t(heroText)}</p>
             </div>
 
             <div className="grid gap-8 md:grid-cols-[14rem_1fr]">
