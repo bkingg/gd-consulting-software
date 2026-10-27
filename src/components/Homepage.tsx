@@ -299,7 +299,7 @@ const Homepage = () => {
             logicielles complexes, sécurisées et scalables sur le cloud.
           </p>
           <a
-            href="mailto:gdconsultingsn@gmail.com"
+            href="mailto:contact@gdco.tech"
             className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform duration-300"
           >
             Parlez à nos experts
@@ -385,7 +385,7 @@ const Homepage = () => {
             hauteur des projets les plus ambitieux.
           </p>
           <a
-            href="mailto:gdconsultingsn@gmail.com"
+            href="mailto:contact@gdco.tech"
             className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-transform duration-300 mb-8"
           >
             Discutons de votre projet
