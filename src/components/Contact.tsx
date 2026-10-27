@@ -5,9 +5,9 @@ import { z } from "zod";
 
 // Zod schema for validation
 const contactSchema = z.object({
-  name: z.string().min(2, "Le nom est requis"),
-  email: z.string().email("Email invalide"),
-  message: z.string().min(5, "Le message est trop court"),
+  name: z.string().trim().min(2, "Le nom est requis").max(100, "Le nom est trop long (100 caractères max)"),
+  email: z.email("Email invalide").max(254, "Email trop long"),
+  message: z.string().trim().min(5, "Le message est trop court").max(5000, "Le message est trop long (5000 caractères max)"),
 });
 
 const ContactForm = () => {
@@ -94,6 +94,7 @@ const ContactForm = () => {
           <input
             type="text"
             name="name"
+            maxLength={100}
             placeholder="Votre nom"
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
@@ -106,6 +107,7 @@ const ContactForm = () => {
           <input
             type="email"
             name="email"
+            maxLength={254}
             placeholder="Votre email"
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
           />
@@ -117,6 +119,7 @@ const ContactForm = () => {
         <div className="flex flex-col">
           <textarea
             name="message"
+            maxLength={5000}
             placeholder="Votre message"
             rows={6}
             className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
