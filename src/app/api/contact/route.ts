@@ -5,7 +5,32 @@ const contactSchema = z.object({
   name: z.string().trim().min(1).max(100),
   email: z.email().max(254),
   message: z.string().trim().min(1).max(5000),
+  // Anti-bot fields sent by the form
+  website: z.string().optional(), // honeypot, must stay empty
+  startedAt: z.number(), // timestamp when the form was displayed
 });
+
+// Submissions faster than this are almost certainly bots
+const MIN_FILL_TIME_MS = 3000;
+
+// Best-effort in-memory rate limit (per server instance)
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX = 3;
+const submissions = new Map<string, number[]>();
+
+function isRateLimited(ip: string) {
+  const now = Date.now();
+  const recent = (submissions.get(ip) ?? []).filter(
+    (t) => now - t < RATE_LIMIT_WINDOW_MS
+  );
+  if (recent.length >= RATE_LIMIT_MAX) {
+    submissions.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  submissions.set(ip, recent);
+  return false;
+}
 
 function escapeHtml(str: string) {
   return str
@@ -26,7 +51,22 @@ export async function POST(req: Request) {
       });
     }
 
-    const { name, email, message } = parsed.data;
+    const { name, email, message, website, startedAt } = parsed.data;
+
+    // Pretend success for bots so they don't adapt
+    if (website || Date.now() - startedAt < MIN_FILL_TIME_MS) {
+      return new Response(JSON.stringify({ success: true }), { status: 200 });
+    }
+
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+    if (isRateLimited(ip)) {
+      return new Response(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+      });
+    }
 
     // Create transporter using Gmail SMTP
     const transporter = nodemailer.createTransport({

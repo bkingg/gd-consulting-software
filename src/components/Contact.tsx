@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 // Zod schema for validation
@@ -14,6 +14,11 @@ const ContactForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const startedAt = useRef(0);
+
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,12 +52,19 @@ const ContactForm = () => {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          website: formData.get("website")?.toString() || "",
+          startedAt: startedAt.current,
+        }),
       });
 
       if (res.ok) {
         setSuccess(true);
         form.reset();
+        startedAt.current = Date.now();
+      } else if (res.status === 429) {
+        alert("Trop de messages envoyés. Réessayez dans quelques minutes.");
       } else {
         alert("Erreur lors de l'envoi. Réessayez plus tard.");
       }
@@ -90,6 +102,14 @@ const ContactForm = () => {
         className="max-w-2xl mx-auto flex flex-col gap-6"
         onSubmit={handleSubmit}
       >
+        {/* Honeypot: hidden from humans, bots tend to fill it */}
+        <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+          <label>
+            Website
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+          </label>
+        </div>
+
         <div className="flex flex-col">
           <input
             type="text"
