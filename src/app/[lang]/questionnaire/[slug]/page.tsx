@@ -9,6 +9,7 @@ import {
   QUESTIONNAIRE_SLUGS,
   alternatesFor,
   kindFromSlug,
+  ogImage,
   paths,
 } from "@/lib/i18n";
 
@@ -58,7 +59,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: alternatesFor(lang, (l) => paths.questionnaire(l, kind)),
-    openGraph: { title, description, url: paths.questionnaire(lang, kind), locale: OG_LOCALES[lang], type: "website" },
+    openGraph: { title, description, url: paths.questionnaire(lang, kind), locale: OG_LOCALES[lang], type: "website", images: [ogImage(lang)] },
+    twitter: { card: "summary_large_image", title, description, images: [ogImage(lang)] },
     // Form pages stay out of search results; the picker page is indexed instead
     robots: { index: false, follow: true },
   };

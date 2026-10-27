@@ -16,6 +16,8 @@ const fr = {
     openMenu: "Ouvrir le menu",
     closeMenu: "Fermer le menu",
     language: "Langue",
+    writeUs: "Écrivez-nous",
+    questionnaireTeaser: "Décrivez votre projet en 10 minutes",
   },
   hero: {
     title: "Logiciels d’entreprise fiables et évolutifs",
@@ -106,6 +108,8 @@ const en: Dictionary = {
     openMenu: "Open menu",
     closeMenu: "Close menu",
     language: "Language",
+    writeUs: "Write to us",
+    questionnaireTeaser: "Describe your project in 10 minutes",
   },
   hero: {
     title: "Reliable, scalable enterprise software",

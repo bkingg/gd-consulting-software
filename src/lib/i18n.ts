@@ -11,6 +11,14 @@ export const otherLocale = (lang: Locale): Locale => (lang === "fr" ? "en" : "fr
 
 export const OG_LOCALES: Record<Locale, string> = { fr: "fr_FR", en: "en_US" };
 
+// Social sharing image per language (1200×630, in /public/og)
+export const ogImage = (lang: Locale) => ({
+  url: `/og/gd-consulting-${lang}.jpg`,
+  width: 1200,
+  height: 630,
+  alt: "GD Consulting",
+});
+
 export type QuestionnaireKind = "website" | "software";
 export const QUESTIONNAIRE_KINDS: QuestionnaireKind[] = ["website", "software"];
 

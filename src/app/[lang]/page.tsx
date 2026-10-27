@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Homepage from "@/components/Homepage";
 import { getDictionary } from "@/lib/dictionaries";
-import { Locale, OG_LOCALES, SITE_URL, alternatesFor, otherLocale, paths } from "@/lib/i18n";
+import { Locale, OG_LOCALES, SITE_URL, alternatesFor, ogImage, otherLocale, paths } from "@/lib/i18n";
 
 type Props = { params: Promise<{ lang: Locale }> };
 
@@ -22,8 +22,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: OG_LOCALES[lang],
       alternateLocale: OG_LOCALES[otherLocale(lang)],
       type: "website",
+      images: [ogImage(lang)],
     },
-    twitter: { card: "summary_large_image", title: meta.title, description: meta.ogDescription },
+    twitter: { card: "summary_large_image", title: meta.title, description: meta.ogDescription, images: [ogImage(lang)] },
   };
 }
 

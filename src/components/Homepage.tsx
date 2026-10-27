@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ArrowRightIcon, ArrowUpRightIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import { RefObject, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Contact from "@/components/Contact";
@@ -195,41 +195,62 @@ const Homepage = ({ lang, dict }: { lang: Locale; dict: Dictionary }) => {
     return () => observer.disconnect();
   }, []);
 
-  // Close the mobile menu with Escape
+  const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
-    if (!isOpen) return;
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduceMotion(query.matches);
+    const onChange = () => setReduceMotion(query.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const wasOpen = useRef(false);
+
+  // Mobile menu: lock page scroll, close with Escape, move focus in and back out
+  useEffect(() => {
+    if (!isOpen) {
+      if (wasOpen.current) menuButtonRef.current?.focus();
+      wasOpen.current = false;
+      return;
+    }
+    wasOpen.current = true;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    // Wait a frame so the panel is rendered visible before focusing into it
+    const frame = requestAnimationFrame(() =>
+      menuRef.current?.querySelector<HTMLElement>("a")?.focus({ preventScroll: true })
+    );
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+    const onResize = () => window.matchMedia("(min-width: 1280px)").matches && setIsOpen(false);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.body.style.overflow = overflow;
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+    };
   }, [isOpen]);
+
+  const closeMenu = () => setIsOpen(false);
 
   const navLinkClass = (id: string) =>
     `cursor-pointer px-4 py-2 rounded-full transition-colors duration-300 hover:text-white hover:bg-green-500/30 ${focusRing} ${
       activeSection === id ? "bg-green-500/50 text-white" : "text-white/75"
     }`;
 
-  const navLinks = (mobile: boolean) => (
-    <>
-      {NAV_IDS.map((id) => (
-        <a
-          key={id}
-          href={`#${id}`}
-          onClick={mobile ? () => setIsOpen(false) : undefined}
-          aria-current={activeSection === id ? "true" : undefined}
-          className={`${navLinkClass(id)} ${mobile ? "px-6 py-3" : ""}`}
-        >
-          {dict.nav.items[id]}
-        </a>
-      ))}
-      <Link
-        href={paths.questionnaires(lang)}
-        onClick={mobile ? () => setIsOpen(false) : undefined}
-        className={`${navLinkClass("questionnaire")} ${mobile ? "px-6 py-3" : ""}`}
-      >
-        {dict.nav.questionnaire}
-      </Link>
-    </>
-  );
+  // Staggered entrance for mobile menu content
+  const stagger = (i: number) => ({
+    className: `duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      isOpen || reduceMotion ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+    }`,
+    // Only opacity and movement: transitioning visibility would keep links unfocusable during the delay
+    style: reduceMotion
+      ? { transitionProperty: "none" }
+      : { transitionProperty: "opacity, translate", transitionDelay: isOpen ? `${80 + i * 45}ms` : "0ms" },
+  });
 
   return (
     <div className="w-full overflow-x-hidden relative">
@@ -259,7 +280,19 @@ const Homepage = ({ lang, dict }: { lang: Locale; dict: Dictionary }) => {
 
         {/* Desktop Menu */}
         <nav aria-label={dict.nav.label} className="hidden xl:flex gap-2">
-          {navLinks(false)}
+          {NAV_IDS.map((id) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              aria-current={activeSection === id ? "true" : undefined}
+              className={navLinkClass(id)}
+            >
+              {dict.nav.items[id]}
+            </a>
+          ))}
+          <Link href={paths.questionnaires(lang)} className={navLinkClass("questionnaire")}>
+            {dict.nav.questionnaire}
+          </Link>
         </nav>
 
         <div className="justify-self-end flex items-center gap-1">
@@ -283,27 +316,119 @@ const Homepage = ({ lang, dict }: { lang: Locale; dict: Dictionary }) => {
 
           {/* Mobile Hamburger */}
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setIsOpen(!isOpen)}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
             aria-label={isOpen ? dict.nav.closeMenu : dict.nav.openMenu}
-            className={`xl:hidden flex items-center justify-center w-11 h-11 rounded-full text-white cursor-pointer hover:bg-white/10 transition-colors ${focusRing}`}
+            className={`xl:hidden relative w-11 h-11 rounded-full text-white cursor-pointer hover:bg-white/10 transition-colors ${focusRing}`}
           >
-            {isOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
+            {/* Two lines that morph into a cross */}
+            <span
+              aria-hidden="true"
+              className={`absolute left-1/2 top-1/2 h-[2px] w-5 -translate-x-1/2 rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                isOpen ? "-translate-y-1/2 rotate-45" : "-translate-y-[4px]"
+              }`}
+            />
+            <span
+              aria-hidden="true"
+              className={`absolute left-1/2 top-1/2 h-[2px] -translate-x-1/2 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                isOpen ? "w-5 -translate-y-1/2 -rotate-45" : "w-3.5 translate-x-[-3px] translate-y-[3px]"
+              }`}
+            />
           </button>
         </div>
 
         {/* Mobile Menu */}
-        {isOpen && (
-          <nav
-            id="mobile-menu"
-            aria-label={dict.nav.label}
-            className="absolute top-full left-0 w-full bg-black border-b border-white/10 flex flex-col items-center py-4 gap-1 xl:hidden"
-          >
-            {navLinks(true)}
-          </nav>
-        )}
+        <div
+          id="mobile-menu"
+          ref={menuRef}
+          inert={!isOpen}
+          className={`xl:hidden absolute top-full left-0 w-full h-[calc(100svh-4rem)] overflow-y-auto overscroll-contain bg-black duration-300 ease-out motion-reduce:transition-none ${
+            // Visible at once on open (so focus can land), hidden only after the fade on close
+            isOpen ? "opacity-100 visible transition-opacity" : "opacity-0 invisible transition-[opacity,visibility]"
+          }`}
+        >
+          {/* Emerald glow and circuit grid, echoing the hero */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-emerald-500/25 blur-3xl" />
+            <div className="absolute bottom-0 -left-24 h-72 w-72 rounded-full bg-green-600/15 blur-3xl" />
+            <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(52,211,153,1)_1px,transparent_1px),linear-gradient(90deg,rgba(52,211,153,1)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
+          </div>
+
+          <div className="relative flex min-h-full flex-col px-6 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
+            <nav aria-label={dict.nav.label}>
+              <ul className="divide-y divide-white/10 border-y border-white/10">
+                {NAV_IDS.map((id, i) => {
+                  const active = activeSection === id;
+                  return (
+                    <li key={id} {...stagger(i)}>
+                      <a
+                        href={`#${id}`}
+                        onClick={closeMenu}
+                        aria-current={active ? "true" : undefined}
+                        className={`group flex items-center justify-between py-4 font-heading text-2xl font-bold tracking-wide transition-colors ${focusRing} ${
+                          active ? "text-emerald-400" : "text-white hover:text-emerald-300"
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <span
+                            aria-hidden="true"
+                            className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                              active ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" : "bg-white/15"
+                            }`}
+                          />
+                          {dict.nav.items[id]}
+                        </span>
+                        <ArrowRightIcon
+                          aria-hidden="true"
+                          className="h-5 w-5 text-white/30 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-emerald-300"
+                        />
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            {/* Questionnaire teaser */}
+            <div {...stagger(NAV_IDS.length)}>
+              <Link
+                href={paths.questionnaires(lang)}
+                onClick={closeMenu}
+                className={`group mt-8 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3 pr-4 transition-colors hover:border-emerald-500/50 ${focusRing}`}
+              >
+                <span className="relative h-16 w-20 flex-none overflow-hidden rounded-xl">
+                  <Image src="/images/code-editor.webp" alt="" fill sizes="80px" className="object-cover" />
+                </span>
+                <span className="flex-1">
+                  <span className="block font-heading text-sm font-bold text-white">{dict.nav.questionnaire}</span>
+                  <span className="block text-white/60">{dict.nav.questionnaireTeaser}</span>
+                </span>
+                <ArrowUpRightIcon aria-hidden="true" className="h-5 w-5 text-emerald-400 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+
+            <div className="mt-auto pt-10">
+            <div {...stagger(NAV_IDS.length + 1)}>
+            <div className="flex flex-col gap-4">
+              <a href="#contact" onClick={closeMenu} className={`${ctaClass} text-center`}>
+                {dict.hero.cta}
+              </a>
+              <a
+                href="mailto:contact@gdco.tech"
+                className={`flex items-center justify-center gap-2 rounded-xl py-2 text-white/70 hover:text-white transition-colors ${focusRing}`}
+              >
+                <EnvelopeIcon aria-hidden="true" className="h-5 w-5 text-emerald-400" />
+                <span className="sr-only">{dict.nav.writeUs}: </span>
+                contact@gdco.tech
+              </a>
+            </div>
+            </div>
+            </div>
+          </div>
+        </div>
       </header>
 
       <main>

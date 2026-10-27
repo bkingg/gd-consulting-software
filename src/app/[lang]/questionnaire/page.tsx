@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon, CodeBracketSquareIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
-import { LOCALES, Locale, OG_LOCALES, QUESTIONNAIRE_KINDS, alternatesFor, paths } from "@/lib/i18n";
+import { LOCALES, Locale, OG_LOCALES, QUESTIONNAIRE_KINDS, alternatesFor, ogImage, paths } from "@/lib/i18n";
 import { PICKER, UI } from "@/lib/questionnaire";
 
 type Props = { params: Promise<{ lang: Locale }> };
@@ -27,7 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: alternatesFor(lang, paths.questionnaires),
-    openGraph: { title, description, url: paths.questionnaires(lang), locale: OG_LOCALES[lang], type: "website" },
+    openGraph: { title, description, url: paths.questionnaires(lang), locale: OG_LOCALES[lang], type: "website", images: [ogImage(lang)] },
+    twitter: { card: "summary_large_image", title, description, images: [ogImage(lang)] },
   };
 }
 
