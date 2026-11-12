@@ -56,7 +56,7 @@ const HomeContent = ({ lang }: { lang: Lang }) => {
   return (
     <>
       {/* Hero (dark) */}
-      <section className="relative h-screen min-h-[640px] pt-20 overflow-hidden flex items-center justify-center text-center text-white bg-black">
+      <section className="relative min-h-[100svh] pt-32 pb-24 overflow-hidden flex items-center justify-center text-center text-white bg-black">
         <HeroScene />
         <div className="relative z-10 px-6 max-w-5xl">
           <p className="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-black/40 px-4 py-1.5 mb-8 font-mono text-[11px] md:text-xs uppercase tracking-[0.16em] text-green-300/90 backdrop-blur">

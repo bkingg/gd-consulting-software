@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Field, Lang, SECTIONS, Section, UI } from "@/lib/questionnaire";
 
 type Value = string | number | number[];
@@ -20,8 +20,14 @@ export default function Questionnaire({
 }: {
   initialLang?: Lang;
 }) {
-  const [lang, setLang] = useState<Lang>(initialLang);
+  // Language follows the route (/questionnaire vs /en/questionnaire) so the
+  // header, footer and form always agree.
+  const lang = initialLang;
   const [answers, setAnswers] = useState<Answers>({});
+  const startedAt = useRef(0);
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -101,6 +107,7 @@ export default function Questionnaire({
         body: JSON.stringify({
           lang,
           website: honeypot,
+          startedAt: startedAt.current,
           contact: {
             name: String(answers.name ?? ""),
             company: String(answers.company ?? ""),
@@ -182,24 +189,13 @@ export default function Questionnaire({
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24">
-      <div className="mx-auto flex max-w-6xl justify-end px-4 md:px-8 mb-4">
-        <div className="flex overflow-hidden rounded-full border border-white/15" role="group" aria-label="Langue / Language">
-          {(["fr", "en"] as Lang[]).map((l) => (
-            <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l}
-              className={`px-3 py-1.5 text-sm font-semibold cursor-pointer ${lang === l ? "bg-green-500 text-black" : "text-white/70"}`}>
-              {l.toUpperCase()}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-black text-white pt-28">
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-4 md:px-8">
         {status === "sent" ? (
           <div className="mx-auto max-w-2xl rounded-2xl border border-green-500/30 bg-green-500/5 p-10 text-center">
             <h1 className="mb-4 text-4xl font-semibold text-green-400">{t(UI.successTitle)}</h1>
             <p className="mb-8 text-lg text-white/80">{t(UI.successText)}</p>
-            <Link href="/" className="inline-block rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 font-bold">
+            <Link href={lang === "en" ? "/en" : "/"} className="inline-block rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 font-bold">
               {t(UI.back)}
             </Link>
           </div>

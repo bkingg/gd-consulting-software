@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { o, type Lang } from "@/lib/i18n";
@@ -59,7 +60,10 @@ const SiteFooter = () => {
     <footer className="bg-black text-white/60 px-6 md:px-8 pt-20 pb-10 border-t border-white/10">
       <div className="max-w-7xl mx-auto grid gap-12 lg:grid-cols-[1.3fr_1.4fr_1fr_1fr]">
         <div>
-          <Link href={localizeHref("", lang)} className="text-lg font-semibold text-white">
+          <Link href={localizeHref("", lang)} className="inline-flex items-center gap-3 text-lg font-semibold text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white">
+              <Image src="/gd-consulting-logo.png" alt="" width={29} height={18} />
+            </span>
             GD Consulting
           </Link>
           <p className="mt-4 max-w-xs text-sm">{t.tagline[lang]}</p>

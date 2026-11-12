@@ -324,16 +324,19 @@ const SiteHeader = () => {
         {/* Logo */}
         <Link
           href={localizeHref("", lang)}
-          className="flex shrink-0 items-center space-x-3 md:space-x-4"
+          className="flex shrink-0 items-center gap-3"
         >
-          <Image
-            src="/gd-consulting-logo.png"
-            alt="GD Consulting Logo"
-            width={50}
-            height={50}
-            className="rounded-full"
-          />
-          <span className="text-white font-bold text-lg md:text-xl tracking-wide">
+          {/* The mark's "G" is black, so it sits on a light badge to stay visible on the dark bar */}
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-md shadow-black/30 ring-1 ring-white/10">
+            <Image
+              src="/gd-consulting-logo.png"
+              alt=""
+              width={32}
+              height={20}
+              priority
+            />
+          </span>
+          <span className="text-white font-semibold text-lg md:text-xl tracking-tight">
             GD Consulting
           </span>
         </Link>

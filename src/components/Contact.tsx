@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Lang, o } from "@/lib/i18n";
 
@@ -10,15 +11,9 @@ const UI = {
     "Confiez votre projet à des professionnels de confiance. Nous concevons des solutions logicielles robustes, sécurisées et évolutives, adaptées aux besoins de votre entreprise.",
     "Entrust your project to professionals you can rely on. We design robust, secure and scalable software solutions tailored to your business needs."
   ),
-  questionnaireLead: o("Un projet de site web ?", "A website project?"),
-  questionnaireLink: o(
-    "Remplissez notre questionnaire",
-    "Fill out our questionnaire"
-  ),
-  questionnaireTail: o(
-    "pour recevoir une proposition adaptée.",
-    "to receive a tailored proposal."
-  ),
+  questionnaireLead: o("Un projet logiciel ?", "A software project?"),
+  questionnaireLink: o("Remplissez notre questionnaire", "Fill out our questionnaire"),
+  questionnaireTail: o("pour recevoir une proposition adaptée.", "to receive a tailored proposal."),
   namePlaceholder: o("Votre nom", "Your name"),
   emailPlaceholder: o("Votre email", "Your email"),
   messagePlaceholder: o("Votre message", "Your message"),
@@ -26,33 +21,45 @@ const UI = {
   submit: o("Envoyer le message", "Send message"),
   success: o("Message envoyé avec succès !", "Message sent successfully!"),
   sendError: o(
-    "Erreur lors de l'envoi. Réessayez plus tard.",
-    "Something went wrong sending your message. Please try again later."
+    "Erreur lors de l'envoi. Réessayez plus tard, ou écrivez-nous à contact@gdco.tech.",
+    "Something went wrong sending your message. Please try again later, or email contact@gdco.tech."
   ),
-  serverError: o("Erreur serveur. Réessayez plus tard.", "Server error. Please try again later."),
+  rateLimited: o(
+    "Trop de messages envoyés. Réessayez dans quelques minutes.",
+    "Too many messages sent. Please try again in a few minutes."
+  ),
   nameRequired: o("Le nom est requis", "Name is required"),
   emailInvalid: o("Email invalide", "Invalid email"),
   messageTooShort: o("Le message est trop court", "Message is too short"),
 };
 
+const fieldClass =
+  "p-4 rounded-xl border border-green-400/30 bg-white focus:ring-2 focus:ring-green-500 outline-none transition";
+
 const ContactForm = ({ lang = "fr" }: { lang?: Lang }) => {
   const t = (x: Record<Lang, string>) => x[lang];
 
   const contactSchema = z.object({
-    name: z.string().min(2, t(UI.nameRequired)),
-    email: z.string().email(t(UI.emailInvalid)),
-    message: z.string().min(5, t(UI.messageTooShort)),
+    name: z.string().trim().min(2, t(UI.nameRequired)).max(100),
+    email: z.email(t(UI.emailInvalid)).max(254),
+    message: z.string().trim().min(5, t(UI.messageTooShort)).max(5000),
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [loading, setLoading] = useState(false);
+  // When the form was displayed; the API rejects implausibly fast submissions
+  const startedAt = useRef(0);
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors({});
     setSuccess(false);
-    setLoading(true);
+    setSubmitError("");
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -65,92 +72,117 @@ const ContactForm = ({ lang = "fr" }: { lang?: Lang }) => {
 
     const result = contactSchema.safeParse(data);
     if (!result.success) {
-      const flattened = result.error.flatten();
       const fieldErrors: Record<string, string> = {};
-      Object.entries(flattened.fieldErrors).forEach(([key, messages]) => {
-        if (messages.length > 0) fieldErrors[key] = messages[0];
-      });
+      for (const issue of result.error.issues) {
+        const key = String(issue.path[0]);
+        fieldErrors[key] ??= issue.message;
+      }
       setErrors(fieldErrors);
-      setLoading(false);
       return;
     }
 
+    setLoading(true);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          website: formData.get("website")?.toString() || "",
+          startedAt: startedAt.current,
+        }),
       });
 
       if (res.ok) {
         setSuccess(true);
         form.reset();
+        startedAt.current = Date.now();
       } else {
-        alert(t(UI.sendError));
+        setSubmitError(t(res.status === 429 ? UI.rateLimited : UI.sendError));
       }
     } catch (err) {
       console.error(err);
-      alert(t(UI.serverError));
+      setSubmitError(t(UI.sendError));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="bg-gray-50 text-gray-900 py-32 px-8 text-center">
-      <h1 className="text-4xl md:text-5xl font-bold mb-6">{t(UI.title)}</h1>
-      <p className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto">
-        {t(UI.intro)}
-      </p>
+    <section className="bg-gray-50 text-gray-900 pt-36 pb-28 px-6 md:px-8 text-center">
+      <h1 className="text-4xl md:text-5xl font-semibold mb-6">{t(UI.title)}</h1>
+      <p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-2xl mx-auto">{t(UI.intro)}</p>
 
       <p className="text-lg mb-12 -mt-6 max-w-2xl mx-auto">
         {t(UI.questionnaireLead)}{" "}
-        <a
+        <Link
           href={lang === "en" ? "/en/questionnaire" : "/questionnaire"}
-          className="text-green-600 font-semibold underline underline-offset-4 hover:text-green-500"
+          className="text-green-700 font-semibold underline underline-offset-4 hover:text-green-600"
         >
           {t(UI.questionnaireLink)}
-        </a>{" "}
+        </Link>{" "}
         {t(UI.questionnaireTail)}
       </p>
 
-      <form
-        className="max-w-2xl mx-auto flex flex-col gap-6"
-        onSubmit={handleSubmit}
-      >
+      <form className="max-w-2xl mx-auto flex flex-col gap-6 text-left" onSubmit={handleSubmit} noValidate>
+        {/* Honeypot: hidden from people, tempting for bots */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+          <label>
+            Website
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+          </label>
+        </div>
+
         <div className="flex flex-col">
+          <label htmlFor="contact-name" className="sr-only">{t(UI.namePlaceholder)}</label>
           <input
+            id="contact-name"
             type="text"
             name="name"
+            autoComplete="name"
+            maxLength={100}
             placeholder={t(UI.namePlaceholder)}
-            className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? "contact-name-error" : undefined}
+            className={fieldClass}
           />
           {errors.name && (
-            <span className="text-red-500 text-sm mt-1">{errors.name}</span>
+            <span id="contact-name-error" className="text-red-600 text-sm mt-1">{errors.name}</span>
           )}
         </div>
 
         <div className="flex flex-col">
+          <label htmlFor="contact-email" className="sr-only">{t(UI.emailPlaceholder)}</label>
           <input
+            id="contact-email"
             type="email"
             name="email"
+            autoComplete="email"
+            maxLength={254}
             placeholder={t(UI.emailPlaceholder)}
-            className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "contact-email-error" : undefined}
+            className={fieldClass}
           />
           {errors.email && (
-            <span className="text-red-500 text-sm mt-1">{errors.email}</span>
+            <span id="contact-email-error" className="text-red-600 text-sm mt-1">{errors.email}</span>
           )}
         </div>
 
         <div className="flex flex-col">
+          <label htmlFor="contact-message" className="sr-only">{t(UI.messagePlaceholder)}</label>
           <textarea
+            id="contact-message"
             name="message"
+            maxLength={5000}
             placeholder={t(UI.messagePlaceholder)}
             rows={6}
-            className="p-4 rounded-xl border border-green-400/30 bg-green-50/10 backdrop-blur-md focus:ring-2 focus:ring-green-500 outline-none transition"
+            aria-invalid={!!errors.message}
+            aria-describedby={errors.message ? "contact-message-error" : undefined}
+            className={fieldClass}
           />
           {errors.message && (
-            <span className="text-red-500 text-sm mt-1">{errors.message}</span>
+            <span id="contact-message-error" className="text-red-600 text-sm mt-1">{errors.message}</span>
           )}
         </div>
 
@@ -163,7 +195,7 @@ const ContactForm = ({ lang = "fr" }: { lang?: Lang }) => {
         >
           {loading ? (
             <>
-              <span className="loader border-t-2 border-white rounded-full w-5 h-5 animate-spin"></span>
+              <span className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
               {t(UI.sending)}
             </>
           ) : (
@@ -171,17 +203,11 @@ const ContactForm = ({ lang = "fr" }: { lang?: Lang }) => {
           )}
         </button>
 
-        {success && (
-          <p className="text-green-500 font-semibold mt-4">{t(UI.success)}</p>
-        )}
+        <div aria-live="polite" className="text-center">
+          {success && <p className="text-green-700 font-semibold">{t(UI.success)}</p>}
+          {submitError && <p className="text-red-600 font-semibold">{submitError}</p>}
+        </div>
       </form>
-
-      <style jsx>{`
-        .loader {
-          border-width: 2px;
-          border-top-color: transparent;
-        }
-      `}</style>
     </section>
   );
 };
