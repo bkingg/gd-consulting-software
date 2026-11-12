@@ -197,7 +197,7 @@ export default function Questionnaire({
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-4 md:px-8">
         {status === "sent" ? (
           <div className="mx-auto max-w-2xl rounded-2xl border border-green-500/30 bg-green-500/5 p-10 text-center">
-            <h1 className="mb-4 text-4xl font-extrabold text-green-400">{t(UI.successTitle)}</h1>
+            <h1 className="mb-4 text-4xl font-semibold text-green-400">{t(UI.successTitle)}</h1>
             <p className="mb-8 text-lg text-white/80">{t(UI.successText)}</p>
             <Link href="/" className="inline-block rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-4 font-bold">
               {t(UI.back)}
@@ -206,7 +206,7 @@ export default function Questionnaire({
         ) : (
           <>
             <div className="mb-12 max-w-3xl">
-              <h1 className="mb-5 text-4xl font-extrabold md:text-6xl">{t(UI.heroTitle)}</h1>
+              <h1 className="mb-5 text-4xl font-semibold md:text-6xl">{t(UI.heroTitle)}</h1>
               <p className="text-lg text-white/70 md:text-xl">{t(UI.heroText)}</p>
             </div>
 

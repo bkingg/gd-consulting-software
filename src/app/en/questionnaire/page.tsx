@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import Questionnaire from "@/components/Questionnaire";
 
 export const metadata: Metadata = {
-  title: "Website project questionnaire | GD Consulting",
+  title: "Software project questionnaire | GD Consulting",
   description:
-    "Tell us about your website project in about 10 minutes: business, goals, content and features. GD Consulting gets back to you within 48h.",
+    "Tell us about your software project in about 10 minutes: objectives, technical landscape, integrations and timeline. GD Consulting gets back to you within 48h.",
   robots: { index: false, follow: true },
   alternates: {
     canonical: "https://gdco.tech/en/questionnaire",

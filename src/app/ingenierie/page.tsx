@@ -33,7 +33,7 @@ export default function IngeniariePage() {
         }}
       >
         <Reveal className="relative z-10 max-w-3xl glass-gradient p-8 rounded-3xl">
-          <h1 className="text-5xl md:text-6xl font-extrabold neon-text-green mb-6">
+          <h1 className="text-5xl md:text-6xl font-semibold neon-text-green mb-6">
             Technologie, sécurité et innovation
           </h1>
           <p className="text-xl md:text-2xl mb-8">
@@ -54,7 +54,7 @@ export default function IngeniariePage() {
       <section className="bg-black text-white py-32 px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <Reveal>
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-12 text-center neon-text-green">
+            <h2 className="text-4xl md:text-5xl font-semibold mb-12 text-center neon-text-green">
               L’excellence en ingénierie logicielle
             </h2>
           </Reveal>

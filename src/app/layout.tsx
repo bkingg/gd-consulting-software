@@ -1,19 +1,20 @@
 import "./globals.css";
-import { Orbitron, Rajdhani } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import HtmlLangSync from "@/components/HtmlLangSync";
 
-const orbitron = Orbitron({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-orbitron",
+  variable: "--font-inter",
+  display: "swap",
 });
-const rajdhani = Rajdhani({
+const mono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-rajdhani",
+  weight: ["400", "500"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body
-        className={`${orbitron.variable} ${rajdhani.variable} bg-gray-50 text-gray-800`}
+        className={`${inter.variable} ${mono.variable} antialiased bg-gray-50 text-gray-800`}
       >
         <script
           type="application/ld+json"

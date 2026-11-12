@@ -1,7 +1,17 @@
 import type { MetadataRoute } from "next";
+import { OFFERINGS } from "@/lib/offerings";
 
 const BASE_URL = "https://gdco.tech";
-const ROUTES = ["", "/expertise", "/ingenierie", "/contact"];
+const ROUTES = [
+  "",
+  "/expertise",
+  "/ingenierie",
+  "/contact",
+  "/solutions",
+  "/secteurs",
+  ...OFFERINGS.solutions.map(({ slug }) => `/solutions/${slug}`),
+  ...OFFERINGS.secteurs.map(({ slug }) => `/secteurs/${slug}`),
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entry = (url: string, route: string): MetadataRoute.Sitemap[number] => ({

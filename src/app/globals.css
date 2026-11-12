@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,14 +22,18 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-orbitron);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  text-wrap: balance;
 }
-p, span, a, li, button {
-  font-family: var(--font-rajdhani);
+p {
+  line-height: 1.7;
+  text-wrap: pretty;
 }
 
 html {
@@ -53,9 +57,12 @@ html {
   backdrop-filter: blur(20px);
 }
 
+/* Restrained gradient for headings on dark surfaces (no glow). */
 .neon-text-green {
-  text-shadow: 0 0 6px rgba(0, 255, 128, 0.5),
-    0 0 12px rgba(0, 255, 128, 0.3), 0 0 18px rgba(0, 255, 128, 0.2);
+  background: linear-gradient(180deg, #ffffff 35%, #a7f3d0 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @keyframes scrollDot {
@@ -90,4 +97,51 @@ html {
   .animate-scrollDot {
     animation: none;
   }
+}
+
+/* ---------- HUD / high-tech surfaces ---------- */
+.hud-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 128, 0.035) 0px,
+    rgba(0, 255, 128, 0.035) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.hud-grid {
+  background-image: linear-gradient(rgba(0, 255, 128, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 128, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+}
+
+.hud-card {
+  background: linear-gradient(160deg, rgba(0, 255, 128, 0.07), rgba(34, 211, 238, 0.02));
+  border: 1px solid rgba(0, 255, 128, 0.15);
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.hud-card:hover {
+  border-color: rgba(0, 255, 128, 0.5);
+  box-shadow: 0 0 24px rgba(0, 255, 128, 0.15), inset 0 0 24px rgba(0, 255, 128, 0.05);
+  transform: translateY(-2px);
+}
+
+.hud-frame {
+  background: radial-gradient(circle at center, rgba(0, 255, 128, 0.08), transparent 65%);
+}
+
+.hud-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(0, 255, 128, 0.6);
+}
+
+.hud-grid-light {
+  background-image: linear-gradient(rgba(5, 150, 105, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(5, 150, 105, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 10%, transparent 70%);
 }

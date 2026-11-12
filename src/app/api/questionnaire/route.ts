@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       .join("\n\n");
 
     const html =
-      `<h2 style="font-family:Arial,sans-serif">Questionnaire site web — ${escapeHtml(contact.company)}</h2>` +
+      `<h2 style="font-family:Arial,sans-serif">Questionnaire projet — ${escapeHtml(contact.company)}</h2>` +
       sections
         .map(
           (s, i) =>
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       from: `"GD Consulting – Questionnaire" <${SENDER_EMAIL}>`,
       to: SENDER_EMAIL,
       replyTo: email,
-      subject: `Questionnaire site web – ${contact.company} (${contact.name})`,
+      subject: `Questionnaire projet – ${contact.company} (${contact.name})`,
       text,
       html,
     });
