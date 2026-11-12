@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRightIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import Reveal from "@/components/Reveal";
-import { o, type Lang } from "@/lib/i18n";
+import { o, ogImages, type Lang } from "@/lib/i18n";
 import {
   COLLECTIONS,
   OFFERINGS,
@@ -49,7 +49,7 @@ export const offeringIndexMetadata = (collection: Collection, lang: Lang): Metad
     title: `${c.label[lang]} | GD Consulting`,
     description: c.intro[lang],
     alternates: alternates(path),
-    openGraph: { title: `${c.label[lang]} | GD Consulting`, description: c.intro[lang], url: `${BASE_URL}${path}`, siteName: "GD Consulting" },
+    openGraph: { images: ogImages(lang), title: `${c.label[lang]} | GD Consulting`, description: c.intro[lang], url: `${BASE_URL}${path}`, siteName: "GD Consulting" },
   };
 };
 
@@ -65,7 +65,7 @@ export const offeringDetailMetadata = (
     title: `${item.title[lang]} | GD Consulting`,
     description: item.intro[lang],
     alternates: alternates(path),
-    openGraph: { title: `${item.title[lang]} | GD Consulting`, description: item.tagline[lang], url: `${BASE_URL}${path}`, siteName: "GD Consulting" },
+    openGraph: { images: ogImages(lang), title: `${item.title[lang]} | GD Consulting`, description: item.tagline[lang], url: `${BASE_URL}${path}`, siteName: "GD Consulting" },
   };
 };
 

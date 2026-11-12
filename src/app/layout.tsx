@@ -1,3 +1,4 @@
+import { ogImages } from "@/lib/i18n";
 import "./globals.css";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import type { Metadata } from "next";
@@ -20,6 +21,7 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://gdco.tech"),
   title: "GD Consulting | Ingénierie Logicielle & Conseil",
+  openGraph: { images: ogImages("fr"), siteName: "GD Consulting" },
   description:
     "Solutions logicielles sur mesure — Conseil, Ingénierie et Développement.",
 };

@@ -1,3 +1,4 @@
+import { ogImages } from "@/lib/i18n";
 import { Metadata } from "next";
 import Reveal from "@/components/Reveal";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
+    images: ogImages("fr"),
     title: "Ingénierie logicielle | GD Consulting",
     description:
       "Une approche d'ingénierie logicielle rigoureuse, sécurisée et pensée pour durer.",

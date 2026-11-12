@@ -1,3 +1,4 @@
+import { ogImages } from "@/lib/i18n";
 import { Metadata } from "next";
 import Reveal from "@/components/Reveal";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
+    images: ogImages("en"),
     title: "Software Engineering | GD Consulting",
     description:
       "A rigorous, secure software engineering approach, built to last.",

@@ -1,3 +1,4 @@
+import { ogImages } from "@/lib/i18n";
 import { Metadata } from "next";
 import Contact from "@/components/Contact";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
+    images: ogImages("en"),
     title: "Contact | GD Consulting",
     description: "Get in touch with GD Consulting to discuss your software project.",
     url: "https://gdco.tech/en/contact",

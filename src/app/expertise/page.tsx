@@ -1,3 +1,4 @@
+import { ogImages } from "@/lib/i18n";
 import { Metadata } from "next";
 import { CpuChipIcon, CloudIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import Reveal from "@/components/Reveal";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
+    images: ogImages("fr"),
     title: "Notre expertise | GD Consulting",
     description:
       "Développement de logiciels sur mesure, architecture cloud scalable et intelligence artificielle.",

@@ -1,3 +1,4 @@
+import { ogImages } from "@/lib/i18n";
 import { Metadata } from "next";
 import HomeContent from "@/components/home/HomeContent";
 
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
+    images: ogImages("fr"),
     title: "GD Consulting",
     description:
       "Solutions logicielles puissantes, scalables et innovantes pour entreprises ambitieuses.",
